@@ -119,7 +119,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
             }
           }
         });
-
+        console.log(frameDetails);
         setMetaTags(frameDetails);
       } catch (err) {
         console.error("Error fetching meta tags:", err);
@@ -136,6 +136,11 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     action?: string;
     target?: string;
   }) => {
+    console.log("Button clicked:", button);
+    if (button.action === "post_redirect" || button.action === "link") {
+      window.location.href = button.target!;
+      return;
+    }
     const response = await fetch("/api/frames", {
       method: "POST",
       headers: {
@@ -256,7 +261,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   };
   return (
     <div className="w-full">
-      {metaTags.image && metaTags.buttons.length > 0 && (
+      {metaTags.image && (
         <div className="size-84 flex flex-col gap-2 justify-center border-1 rounded-t-xl bg-white mb-2">
           <Image
             src={metaTags.image}
@@ -287,7 +292,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
                   onButtonClick(button);
                 }}
               >
-                {button.content}
+                {button.content} {}
               </button>
             ))}
           </div>
