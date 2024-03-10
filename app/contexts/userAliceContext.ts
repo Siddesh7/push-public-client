@@ -1,4 +1,4 @@
-import {PushAPI} from "@pushprotocol/restapi";
+import {PushAPI, TYPES} from "@pushprotocol/restapi";
 import {PushStream} from "@pushprotocol/restapi/src/lib/pushstream/PushStream";
 import {createContext, useContext} from "react";
 interface User {
@@ -6,12 +6,20 @@ interface User {
   setUserAlice: (userAlice: PushAPI) => void;
   userStream: PushStream;
   setUserStream: (userStream: PushStream) => void;
+  userAliceVideo: any;
+  setUserAliceVideo: (userAliceVideo: any) => void;
+  userAliceVideoData: TYPES.VIDEO.DATA;
+  setUserAliceVideoData: (userAliceVideoData: any) => void;
 }
 const user: User = {
   userAlice: {} as PushAPI,
   setUserAlice: () => {},
   userStream: {} as PushStream,
   setUserStream: () => {},
+  userAliceVideo: {},
+  setUserAliceVideo: () => {},
+  userAliceVideoData: {} as TYPES.VIDEO.DATA,
+  setUserAliceVideoData: () => {},
 };
 
 export const UserContext = createContext(user);

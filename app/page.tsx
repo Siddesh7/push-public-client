@@ -8,19 +8,22 @@ import {useAccount, useWalletClient} from "wagmi";
 import {UserContext} from "./contexts/userAliceContext";
 import {useEffect, useState} from "react";
 
-import {CONSTANTS, PushAPI} from "@pushprotocol/restapi";
+import {CONSTANTS, PushAPI, TYPES} from "@pushprotocol/restapi";
 import ChatList from "./components/ChatList";
 
 import {ActiveChat, CurrentChatContext} from "./contexts/currentChatContext";
 import ChatWindow from "./components/ChatWindow";
-import {PushStream} from "@pushprotocol/restapi/src/lib/pushstream/PushStream";
 export default function Home() {
   const [userAlice, setUserAlice] = useState<PushAPI>({} as PushAPI);
   const [userStream, setUserStream] = useState<any>();
+  const [userAliceVideo, setUserAliceVideo] = useState<any>();
+  const [userAliceVideoData, setUserAliceVideoData] =
+    useState<TYPES.VIDEO.DATA>(CONSTANTS.VIDEO.INITIAL_DATA);
   const [activeChat, setActiveChat] = useState<ActiveChat>({} as ActiveChat);
   const {theme} = useTheme();
   const {isConnected, address} = useAccount();
   const {data: signer} = useWalletClient();
+  const [loading, setLoading] = useState(true);
   const initializeUser = async () => {
     const user = await PushAPI.initialize(signer, {
       env: CONSTANTS.ENV.STAGING,
@@ -29,18 +32,21 @@ export default function Home() {
     const stream = await user.initStream([
       CONSTANTS.STREAM.CHAT,
       CONSTANTS.STREAM.CHAT_OPS,
+      CONSTANTS.STREAM.VIDEO,
     ]);
 
     await stream.connect();
 
     setUserAlice(user);
     setUserStream(stream);
+
+    console.log("User logged in as", address);
   };
 
   useEffect(() => {
     if (!signer) return;
     initializeUser();
-
+    setLoading(false);
     return () => {
       userStream?.disconnect();
     };
@@ -69,17 +75,35 @@ export default function Home() {
         </>
       ) : (
         <UserContext.Provider
-          value={{userAlice, setUserAlice, userStream, setUserStream}}
+          value={{
+            userAlice,
+            setUserAlice,
+            userStream,
+            setUserStream,
+            userAliceVideo,
+            setUserAliceVideo,
+            userAliceVideoData,
+            setUserAliceVideoData,
+          }}
         >
           <CurrentChatContext.Provider value={{activeChat, setActiveChat}}>
-            <div className="flex flex-row">
-              <div className="w-[400px]">
-                <ChatList />
+            {loading ? (
+              <div className="flex flex-row min-h-screen justify-center items-center">
+                <span className="loading loading-ring loading-xs"></span>
+                <span className="loading loading-ring loading-sm"></span>
+                <span className="loading loading-ring loading-md"></span>
+                <span className="loading loading-ring loading-lg"></span>
               </div>
-              <div className="w-full">
-                <ChatWindow />
+            ) : (
+              <div className="flex flex-row">
+                <div className="w-[400px]">
+                  <ChatList />
+                </div>
+                <div className="w-full">
+                  <ChatWindow />
+                </div>
               </div>
-            </div>
+            )}
           </CurrentChatContext.Provider>
         </UserContext.Provider>
       )}

@@ -1,17 +1,17 @@
 import React from "react";
 import {useAccount, useEnsName} from "wagmi";
 import Image from "next/image";
+import FrameRenderer from "./FrameRenderer";
+import {hasWebLink, removeWebLink} from "../lib/utils";
 interface ChatMessageProps {
   nameOrAddress: string;
   ts: number;
   message: any;
-  key: number;
 }
 const ChatMessage: React.FC<ChatMessageProps> = ({
   nameOrAddress,
   ts,
   message,
-  key,
 }) => {
   const {address} = useAccount();
 
@@ -25,10 +25,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 
   return (
     <div
-      className={`chat flex flex-col ${
+      className={`chat flex flex-col px-2 ${
         checkSelf() ? "chat-end" : "chat-start"
       }`}
-      key={key}
     >
       <p>
         {checkSelf()
@@ -36,19 +35,26 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
           : ensName ??
             `${nameOrAddress!.slice(0, 6) + "..." + nameOrAddress!.slice(-4)}`}
       </p>
-      <div className="chat-bubble bg-gray-500">
-        {message.startsWith("{") || message.startsWith("https") ? (
-          <Image src={message.content} height={100} width={100} alt="dd" />
+      <div
+        className={`chat-bubble bg-gray-500 max-w-lg ${
+          hasWebLink(message) ? "p-0" : "px-4 py-2"
+        }`}
+      >
+        {hasWebLink(message) ? (
+          <div className="flex flex-col gap-2">
+            <FrameRenderer URL={message} />
+            <p>{removeWebLink(message)}</p>
+          </div>
         ) : (
           message
         )}
-        <span className="text-xs ml-2">
-          {new Date(Number(ts)).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </span>
-      </div>
+      </div>{" "}
+      <span className="text-xs ml-2 justify-end">
+        {new Date(Number(ts)).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </span>
     </div>
   );
 };

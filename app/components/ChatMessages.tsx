@@ -35,6 +35,7 @@ const ChatMessages = () => {
 
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({behavior: "smooth"});
+    endOfMessagesRef.current?.focus();
   }, [chatMessages]);
 
   return (
@@ -43,12 +44,13 @@ const ChatMessages = () => {
         chatMessages.length > 0 &&
         chatMessages.map((chat, index) => {
           return (
-            <ChatMessage
-              key={index}
-              message={chat.messageContent}
-              ts={chat.timestamp}
-              nameOrAddress={chat.fromDID.slice(7)}
-            />
+            <div key={index}>
+              <ChatMessage
+                message={chat.messageContent}
+                ts={chat.timestamp}
+                nameOrAddress={chat.fromDID.slice(7)}
+              />
+            </div>
           );
         })}
 

@@ -12,6 +12,7 @@ const ChatList = () => {
   const fetchChatList = async () => {
     if (!signer) return;
     const chatListResponse = await userAlice?.chat?.list("CHATS", {limit: 20});
+    console.log("Chat list", chatListResponse);
     setChatList(chatListResponse);
   };
 
@@ -35,7 +36,7 @@ const ChatList = () => {
               nameOrAddress={
                 chat.groupInformation
                   ? (chat.groupInformation.groupName as any)
-                  : (chat.msg.fromCAIP10.slice(7) as `0x${string}`)
+                  : (chat.did.slice(7) as `0x${string}`)
               }
               lastSentOrReceivedTS={chat.msg.timestamp!}
               lastMessage={chat.msg.messageContent}

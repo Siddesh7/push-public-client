@@ -1,4 +1,4 @@
-import React, {useState, useRef, ReactEventHandler} from "react";
+import React, {useState, useRef, ReactEventHandler, useEffect} from "react";
 import EmojiPicker from "emoji-picker-react";
 import {MdEmojiEmotions} from "react-icons/md";
 import {BsEmojiGrin} from "react-icons/bs";
@@ -30,8 +30,11 @@ const ChatSendComponent = () => {
     setInputText("");
   };
 
+  useEffect(() => {
+    console.log(inputText);
+  }, [inputText]);
   return (
-    <div className="absolute bottom-3 w-full px-4 py-2">
+    <div className="w-full px-4 py-2">
       <label className="input flex items-center gap-2 ">
         <div className=" cursor-pointer" onClick={toggleEmojiPicker}>
           <BsEmojiGrin size={"20px"} />
@@ -44,21 +47,25 @@ const ChatSendComponent = () => {
             <EmojiPicker onEmojiClick={handleEmojiClick} />
           </div>
         )}
-
         <input
           type="text"
-          className="grow"
+          className="w-full" // Apply your existing class for styling
           placeholder="type a message"
+          style={{whiteSpace: "pre-wrap", height: "auto"}} // Update the style attribute
           onChange={(e) => {
             setInputText(e.target.value);
           }}
           onKeyDown={(event) => {
-            if (event.key === "Enter") {
+            if (event.key === "Enter" && event.shiftKey) {
+              event.preventDefault();
+              setInputText((prev) => prev + "\n");
+            } else if (event.key === "Enter") {
               sendMessage();
             }
           }}
           value={inputText}
         />
+
         <kbd className="kbd kbd-sm">⌘</kbd>
         <div className=" cursor-pointer" onClick={sendMessage}>
           <LuSend size={"20px"} />
