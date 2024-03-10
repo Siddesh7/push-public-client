@@ -52,7 +52,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
 
   return (
     <div
-      className={`w-full flex flex-row gap-2 overflow-x-hidden hover:bg-gray-400 hover:rounded-lg  py-2 px-2 border-b-2 border-[gray] relative ${
+      className={`w-full flex flex-row gap-2 overflow-x-hidden hover:bg-gray-400 hover:rounded-lg  py-2 px-2 border-b-2 border-[gray] cursor-pointer relative ${
         focus && `bg-gray-400 rounded-lg`
       }`}
       onClick={onChatItemClick}

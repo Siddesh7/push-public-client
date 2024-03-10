@@ -20,10 +20,10 @@ export default function Home() {
   const [userAliceVideoData, setUserAliceVideoData] =
     useState<TYPES.VIDEO.DATA>(CONSTANTS.VIDEO.INITIAL_DATA);
   const [activeChat, setActiveChat] = useState<ActiveChat>({} as ActiveChat);
-  const {theme} = useTheme();
+  const {theme, setTheme} = useTheme();
   const {isConnected, address} = useAccount();
   const {data: signer} = useWalletClient();
-  const [loading, setLoading] = useState(true);
+
   const initializeUser = async () => {
     const user = await PushAPI.initialize(signer, {
       env: CONSTANTS.ENV.STAGING,
@@ -44,9 +44,10 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setTheme(localStorage.getItem("theme") || "garden");
     if (!signer) return;
     initializeUser();
-    setLoading(false);
+
     return () => {
       userStream?.disconnect();
     };
@@ -87,23 +88,14 @@ export default function Home() {
           }}
         >
           <CurrentChatContext.Provider value={{activeChat, setActiveChat}}>
-            {loading ? (
-              <div className="flex flex-row min-h-screen justify-center items-center">
-                <span className="loading loading-ring loading-xs"></span>
-                <span className="loading loading-ring loading-sm"></span>
-                <span className="loading loading-ring loading-md"></span>
-                <span className="loading loading-ring loading-lg"></span>
+            <div className="flex flex-row">
+              <div className="w-[400px]">
+                <ChatList />
               </div>
-            ) : (
-              <div className="flex flex-row">
-                <div className="w-[400px]">
-                  <ChatList />
-                </div>
-                <div className="w-full">
-                  <ChatWindow />
-                </div>
+              <div className="w-full">
+                <ChatWindow />
               </div>
-            )}
+            </div>
           </CurrentChatContext.Provider>
         </UserContext.Provider>
       )}

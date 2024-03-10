@@ -35,9 +35,7 @@ const config = getDefaultConfig({
 const queryClient = new QueryClient();
 
 export function Providers({children}: {children: React.ReactNode}) {
-  const [theme, setTheme] = React.useState(
-    localStorage.getItem("theme") || "garden"
-  );
+  const [theme, setTheme] = React.useState("garden");
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

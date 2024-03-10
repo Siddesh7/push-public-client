@@ -19,6 +19,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           buttonIndex,
           inputText,
           userAddress,
+          fid: userAddress,
         },
       }),
     });
