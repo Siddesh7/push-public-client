@@ -10,11 +10,13 @@ import {BsThreeDotsVertical} from "react-icons/bs";
 const ProfileTab = () => {
   const {userAlice} = useUserAlice();
   const {address} = useAccount();
+  const {data: signer} = useWalletClient();
   const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
   const {data: ensName} = useEnsName({
     address: userInfo.address as `0x${string}`,
   });
   const fetchUserInfo = async () => {
+    if (!address || !userAlice || !signer) return;
     const userInfo = await userAlice?.info();
 
     const user = {

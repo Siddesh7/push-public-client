@@ -4,8 +4,10 @@ import React, {useState, useEffect} from "react";
 import {useAccount} from "wagmi";
 import {FrameDetails, getFormattedMetadata, getHostname} from "../lib/utils";
 import Link from "next/link";
+import {useUserAlice} from "../contexts/userAliceContext";
 
 function FrameRenderer({URL}: {URL: string}): React.ReactElement {
+  const {userAlice} = useUserAlice();
   const {address} = useAccount();
   const [metaTags, setMetaTags] = useState<FrameDetails>({
     image: "",
@@ -32,6 +34,12 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     }
   }, [URL]);
 
+  const subscribeToChannel = async (channel: string) => {
+    const response = await userAlice?.notification.subscribe(
+      `eip155:11155111:${channel}`
+    );
+    return true;
+  };
   const onButtonClick = async (button: {
     index: string;
     action?: string;
@@ -40,6 +48,9 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     if (button.action === "post_redirect" || button.action === "link") {
       window.location.href = button.target!;
       return;
+    }
+    if (button.action === "subscribe") {
+      await subscribeToChannel(button.target!);
     }
     const response = await fetch("/api/frames", {
       method: "POST",
