@@ -2,15 +2,9 @@
 import Image from "next/image";
 import React, {useState, useEffect} from "react";
 import {useAccount} from "wagmi";
-import {getHostname} from "../lib/utils";
+import {FrameDetails, getFormattedMetadata, getHostname} from "../lib/utils";
+import Link from "next/link";
 
-interface FrameDetails {
-  image: string;
-  siteURL: string;
-  postURL: string;
-  buttons: {index: string; content: string; action?: string; target?: string}[];
-  input?: {name: string; content: string};
-}
 function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const {address} = useAccount();
   const [metaTags, setMetaTags] = useState<FrameDetails>({
@@ -23,103 +17,10 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const [inputText, setInputText] = useState("");
   useEffect(() => {
     const fetchMetaTags = async (url: string) => {
-      const frameDetails: FrameDetails = {
-        image: "",
-        siteURL: URL,
-        postURL: "",
-        buttons: [],
-        input: {name: "", content: ""},
-      };
       try {
         const response = await fetch(url);
         const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-
-        const metaElements = doc.head.querySelectorAll("meta");
-
-        metaElements.forEach((element, index) => {
-          const name =
-            element.getAttribute("name") || element.getAttribute("property");
-          const content = element.getAttribute("content");
-
-          if (name && content) {
-            if (name === "fc:frame:image") {
-              frameDetails.image = content;
-            } else if (name === "fc:frame:post_url") {
-              frameDetails.postURL = content;
-            } else if (
-              name.includes("fc:frame:button") &&
-              !name.includes("action") &&
-              !name.includes("target")
-            ) {
-              const index = name.split(":")[3];
-              const indexZeroExists = frameDetails.buttons.some(
-                (button) => button.index === index
-              );
-              if (!indexZeroExists) {
-                frameDetails.buttons.push({
-                  index: index,
-                  content: content,
-                  action: "",
-                  target: "",
-                });
-              } else {
-                const indexToUpdate = frameDetails.buttons.findIndex(
-                  (button) => button.index === String(index)
-                );
-                frameDetails.buttons[indexToUpdate].content = content;
-                frameDetails.buttons[indexToUpdate].index = index;
-              }
-            } else if (name === "fc:frame:input:text") {
-              frameDetails.input = {name, content};
-            } else if (
-              name.includes("fc:frame:button:") &&
-              name.includes(":action")
-            ) {
-              const number = name.split(":")[3];
-              const indexZeroExists = frameDetails.buttons.some(
-                (button) => button.index === number
-              );
-              if (!indexZeroExists) {
-                frameDetails.buttons.push({
-                  index: number,
-                  content: "",
-                  action: content,
-                  target: "",
-                });
-              } else {
-                const indexToUpdate = frameDetails.buttons.findIndex(
-                  (button) => button.index === number
-                );
-                frameDetails.buttons[indexToUpdate].action = content;
-              }
-            } else if (
-              name.includes("fc:frame:button:") &&
-              name.includes(":target")
-            ) {
-              const number = name.split(":")[3];
-
-              const indexZeroExists = frameDetails.buttons.some(
-                (button) => button.index === number
-              );
-              if (!indexZeroExists) {
-                frameDetails.buttons.push({
-                  index: number,
-                  content: "",
-                  action: "",
-                  target: content,
-                });
-              } else {
-                const indexToUpdate = frameDetails.buttons.findIndex(
-                  (button) => button.index === number
-                );
-                frameDetails.buttons[indexToUpdate].target = content;
-              }
-            }
-          }
-        });
-        console.log(frameDetails);
+        const frameDetails: FrameDetails = getFormattedMetadata(URL, html);
         setMetaTags(frameDetails);
       } catch (err) {
         console.error("Error fetching meta tags:", err);
@@ -136,7 +37,6 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     action?: string;
     target?: string;
   }) => {
-    console.log("Button clicked:", button);
     if (button.action === "post_redirect" || button.action === "link") {
       window.location.href = button.target!;
       return;
@@ -155,121 +55,24 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
           : metaTags.postURL,
       }),
     });
-
     const data = await response.json();
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(data.data, "text/html");
-
-    const metaElements = doc.head.querySelectorAll("meta");
-
-    const frameDetails: FrameDetails = {
-      image: "",
-      siteURL: URL,
-      postURL: "",
-      buttons: [],
-      input: {name: "", content: ""},
-    };
-    console.log(frameDetails);
-    metaElements.forEach((element, index) => {
-      const name =
-        element.getAttribute("name") || element.getAttribute("property");
-      const content = element.getAttribute("content");
-
-      if (name && content) {
-        if (name === "fc:frame:image") {
-          frameDetails.image = content;
-        } else if (name === "fc:frame:post_url") {
-          frameDetails.postURL = content;
-        } else if (
-          name.includes("fc:frame:button") &&
-          !name.includes("action") &&
-          !name.includes("target")
-        ) {
-          const index = name.split(":")[3];
-          const indexZeroExists = frameDetails.buttons.some(
-            (button) => button.index === index
-          );
-          if (!indexZeroExists) {
-            frameDetails.buttons.push({
-              index: index,
-              content: content,
-              action: "",
-              target: "",
-            });
-          } else {
-            const indexToUpdate = frameDetails.buttons.findIndex(
-              (button) => button.index === String(index)
-            );
-            frameDetails.buttons[indexToUpdate].content = content;
-            frameDetails.buttons[indexToUpdate].index = index;
-          }
-        } else if (name === "fc:frame:input:text") {
-          frameDetails.input = {name, content};
-        } else if (
-          name.includes("fc:frame:button:") &&
-          name.includes(":action")
-        ) {
-          const number = name.split(":")[3];
-          const indexZeroExists = frameDetails.buttons.some(
-            (button) => button.index === number
-          );
-          if (!indexZeroExists) {
-            frameDetails.buttons.push({
-              index: number,
-              content: "",
-              action: content,
-              target: "",
-            });
-          } else {
-            const indexToUpdate = frameDetails.buttons.findIndex(
-              (button) => button.index === number
-            );
-            frameDetails.buttons[indexToUpdate].action = content;
-          }
-        } else if (
-          name.includes("fc:frame:button:") &&
-          name.includes(":target")
-        ) {
-          const number = name.split(":")[3];
-
-          const indexZeroExists = frameDetails.buttons.some(
-            (button) => button.index === number
-          );
-          console.log("Index zero exists:", indexZeroExists);
-          if (!indexZeroExists) {
-            frameDetails.buttons.push({
-              index: number,
-              content: "",
-              action: "",
-              target: content,
-            });
-          } else {
-            const indexToUpdate = frameDetails.buttons.findIndex(
-              (button) => button.index === number
-            );
-
-            console.log("Index to update:", indexToUpdate);
-            frameDetails.buttons[indexToUpdate].target = content;
-          }
-        }
-      }
-    });
+    const frameDetails: FrameDetails = getFormattedMetadata(URL, data.data);
     setInputText("");
-
     setMetaTags(frameDetails);
   };
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
       {metaTags.image && (
-        <div className="size-84 flex flex-col gap-2 justify-center border-1 rounded-t-xl bg-white mb-2">
-          <Image
-            src={metaTags.image}
-            alt="Meta Image"
-            width={1528}
-            height={800}
-            className="rounded-t-xl"
-          />
+        <div className="size-84 flex flex-col gap-2 justify-center border-1 rounded-t-xl bg-white">
+          <Link href={URL} target="blank">
+            <Image
+              src={metaTags.image}
+              alt="Meta Image"
+              width={1528}
+              height={800}
+              className="rounded-t-xl"
+            />
+          </Link>
           {metaTags?.input?.name && metaTags?.input?.content.length > 0 && (
             <div className="w-[95%] m-auto">
               <input
@@ -296,11 +99,11 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
               </button>
             ))}
           </div>
-          <div className="flex justify-end mr-4 mb-4">
+          <div className="flex justify-end mr-4 mb-2">
             <a
               href={`https://${getHostname(URL)}`}
               target="blank"
-              className="text-black/80 text"
+              className="text-black/60 text"
             >
               {getHostname(URL)}
             </a>

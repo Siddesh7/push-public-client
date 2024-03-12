@@ -3,6 +3,7 @@ import React from "react";
 import {useEnsName} from "wagmi";
 import {useCurrentChat} from "../contexts/currentChatContext";
 import {isAddress} from "viem";
+import {truncateAddress} from "../lib/utils";
 interface ChatListItemProps {
   icon?: string;
   nameOrAddress: `0x${string}` | string;
@@ -10,6 +11,7 @@ interface ChatListItemProps {
   lastMessage?: string;
   lastSentOrReceivedTS?: number;
   focus?: boolean;
+  chatOrGroup: "CHAT" | "GROUP";
 }
 const ChatListItem: React.FC<ChatListItemProps> = ({
   icon,
@@ -18,6 +20,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   lastMessage,
   lastSentOrReceivedTS,
   focus,
+  chatOrGroup,
 }) => {
   const {setActiveChat} = useCurrentChat();
   const {data: ensName} = useEnsName({
@@ -47,39 +50,38 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
 
   const onChatItemClick = () => {
     console.log("Setting active chat", chatId);
-    setActiveChat({chatId, nameOrAddress, icon, ensName});
+    setActiveChat({chatId, nameOrAddress, icon, ensName, chatOrGroup});
   };
 
   return (
     <div
-      className={`w-full flex flex-row gap-2 overflow-x-hidden hover:bg-gray-400 hover:rounded-lg  py-2 px-2 border-b-2 border-[gray] cursor-pointer relative ${
+      className={`flex flex-row gap-2 overflow-x-hidden hover:bg-white/20 hover:bg-opacity-25  py-3 items-center px-2 border-b-2 border-[gray] cursor-pointer relative ${
         focus && `bg-gray-400 rounded-lg`
       }`}
       onClick={onChatItemClick}
     >
       <div className="avatar">
-        <div className="w-12 rounded-full">
+        <div className="w-10 h-10 rounded-full">
           <Image
             src={icon ? icon : "/chatIconPlaceholder.png"}
             alt="userIcon"
-            height={12}
-            width={12}
+            height={10}
+            width={10}
+            className="rounded-full object-cover"
           />
         </div>
       </div>
 
       <div className="flex flex-row justify-between pr-4">
-        <div className="flex flex-col justify-center text-nowrap text-ellipsis">
-          <p className="font-extrabold text-lg text">
+        <div className="flex flex-col justify-center truncate">
+          <p className="font-extrabold text-lg text-primary">
             {ensName
               ? ensName
               : isAddress(nameOrAddress)
-              ? `${
-                  nameOrAddress!.slice(0, 6) + "..." + nameOrAddress!.slice(-4)
-                }`
+              ? truncateAddress(nameOrAddress)
               : nameOrAddress}
           </p>
-          <p className="truncate text-ellipsis text-sm">{lastMessage}</p>
+          <p className="truncate text-sm">{lastMessage}</p>
         </div>
         <div className="absolute top-25 right-2">
           {lastSentOrReceivedTS && (

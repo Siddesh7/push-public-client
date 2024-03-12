@@ -1,6 +1,7 @@
 import React, {useEffect} from "react";
 import {useUserAlice} from "../contexts/userAliceContext";
 import {useEnsName} from "wagmi";
+import {truncateAddress} from "../lib/utils";
 interface IncomingCallCardProps {
   callData: any;
 }
@@ -34,11 +35,7 @@ const IncomingCallCard: React.FC<IncomingCallCardProps> = ({callData}) => {
           <h2 className="card-title">Incoming Call</h2>
           <p>
             {ensName ??
-              `${
-                callData.peerInfo.address!.slice(0, 6) +
-                "..." +
-                callData.peerInfo.address!.slice(-4)
-              }`}{" "}
+              truncateAddress(callData?.peerInfo?.address.slice(7) as string)}
             is calling...
           </p>
           <div className="card-actions flex justify-center gap-4">

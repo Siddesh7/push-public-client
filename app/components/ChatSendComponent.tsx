@@ -29,18 +29,26 @@ const ChatSendComponent = () => {
     });
     setInputText("");
   };
-
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {};
   useEffect(() => {
     console.log(inputText);
   }, [inputText]);
   return (
-    <div className="w-full px-4 py-2">
-      <label className="input flex items-center gap-2 ">
-        <div className=" cursor-pointer" onClick={toggleEmojiPicker}>
+    <div className="w-full px-4 py-2 relative">
+      <label className="input input-bordered flex items-center gap-2 ">
+        <div className=" cursor-pointer my-2" onClick={toggleEmojiPicker}>
           <BsEmojiGrin size={"20px"} />
         </div>
-        <div className=" cursor-pointer" onClick={toggleEmojiPicker}>
-          <ImAttachment size={"20px"} />
+        <div className=" cursor-pointer mx-2">
+          <label htmlFor="fileInput">
+            <ImAttachment size={"20px"} />
+          </label>
+          <input
+            id="fileInput"
+            type="file"
+            onChange={handleFileUpload}
+            style={{display: "none"}}
+          />
         </div>
         {showEmoji && (
           <div className="absolute bottom-[55px] left-0">
@@ -66,7 +74,6 @@ const ChatSendComponent = () => {
           value={inputText}
         />
 
-        <kbd className="kbd kbd-sm">⌘</kbd>
         <div className=" cursor-pointer" onClick={sendMessage}>
           <LuSend size={"20px"} />
         </div>

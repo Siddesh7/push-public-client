@@ -34,36 +34,48 @@ const ChatInfo: React.FC<ChatInfoProps> = ({onShowSearch}) => {
     await userAliceVideo?.request([activeChat.nameOrAddress]);
   };
   return (
-    <div className="flex flex-row w-full gap-4 py-2 px-4">
+    <div className="flex flex-row items-center w-full gap-4 py-2 px-4  bg-white/20 bg-opacity-25 rounded-xl">
       <div className="avatar">
-        <div className="w-14 rounded-full">
+        <div className="w-10 h-10 rounded-full">
           <Image
             src={activeChat.icon ? activeChat.icon : "/chatIconPlaceholder.png"}
             alt="userIcon"
-            height={12}
-            width={12}
+            height={10}
+            width={10}
+            className="rounded-full object-cover"
           />
         </div>
       </div>
       <div className="flex flex-row w-full justify-between items-center">
-        <p>{activeChat.ensName ?? activeChat.nameOrAddress}</p>
-        <div className="flex flex-row items-center gap-4">
-          <IoCallSharp
-            size={"20px"}
-            onClick={() => {
-              InitiateCall("audio");
-            }}
-          />
-          <IoIosVideocam
-            size={"20px"}
-            onClick={() => {
-              InitiateCall("video");
-            }}
-          />
-
-          <FaSearch onClick={onShowSearch} />
+        <p className="text-primary font-bold text-lg">
+          {activeChat.ensName ?? activeChat.nameOrAddress}
+        </p>
+        <div className="flex flex-row items-center">
+          <div className="btn bg-transparent border-0 hover:bg-white/20">
+            <IoCallSharp
+              size={"20px"}
+              onClick={() => {
+                InitiateCall("audio");
+              }}
+            />
+          </div>{" "}
+          <div className="btn bg-transparent border-0 hover:bg-white/20">
+            <IoIosVideocam
+              size={"20px"}
+              onClick={() => {
+                InitiateCall("video");
+              }}
+            />
+          </div>
+          <div className="btn bg-transparent border-0 hover:bg-white/20">
+            <FaSearch onClick={onShowSearch} />
+          </div>
           <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn m-1">
+            <div
+              tabIndex={0}
+              role="button"
+              className="btn bg-transparent border-0 hover:bg-white/20"
+            >
               <BsThreeDotsVertical />
             </div>
             <ul

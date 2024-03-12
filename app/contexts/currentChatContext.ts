@@ -5,6 +5,7 @@ export type ActiveChat = {
   nameOrAddress?: `0x${string}` | string;
   icon?: string;
   ensName?: GetEnsNameReturnType;
+  chatOrGroup?: "CHAT" | "GROUP";
 };
 export interface CurrentChat {
   activeChat: ActiveChat;
@@ -17,6 +18,7 @@ const initialChat: CurrentChat = {
     nameOrAddress: "" as `0x${string}`,
     icon: "",
     ensName: "",
+    chatOrGroup: "CHAT",
   },
   setActiveChat: () => {},
 };

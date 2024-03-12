@@ -5,13 +5,16 @@ import {useUserAlice} from "../contexts/userAliceContext";
 import {IFeeds, PushAPI} from "@pushprotocol/restapi";
 import ChatListItem from "./ChatListItem";
 
-const ChatList = () => {
+interface IChatList {
+  type: "CHATS" | "REQUESTS";
+}
+const ChatList: React.FC<IChatList> = ({type}) => {
   const [chatList, setChatList] = useState<IFeeds[]>([]);
   const {userAlice} = useUserAlice();
   const {data: signer} = useWalletClient();
   const fetchChatList = async () => {
     if (!signer) return;
-    const chatListResponse = await userAlice?.chat?.list("CHATS", {limit: 20});
+    const chatListResponse = await userAlice?.chat?.list(type, {limit: 20});
     console.log("Chat list", chatListResponse);
     setChatList(chatListResponse);
   };
@@ -20,7 +23,7 @@ const ChatList = () => {
     fetchChatList();
   }, [userAlice, signer]);
   return (
-    <div className="h-screen min-w-[400px] overflow-y-scroll no-scrollbar px-2 ">
+    <div className="h-screen min-w-[400px] overflow-y-scroll no-scrollbar border-y-2 border-[gray]">
       {chatList &&
         chatList.length > 0 &&
         chatList.map((chat, index) => {
@@ -31,7 +34,11 @@ const ChatList = () => {
           return (
             <ChatListItem
               key={index}
-              icon={chat.profilePicture!}
+              icon={
+                chat.groupInformation
+                  ? chat.groupInformation.groupImage!
+                  : chat.profilePicture!
+              }
               chatId={chat.chatId!}
               nameOrAddress={
                 chat.groupInformation
@@ -40,6 +47,7 @@ const ChatList = () => {
               }
               lastSentOrReceivedTS={chat.msg.timestamp!}
               lastMessage={chat.msg.messageContent}
+              chatOrGroup={chat.groupInformation ? "GROUP" : "CHAT"}
               focus={false}
             />
           );

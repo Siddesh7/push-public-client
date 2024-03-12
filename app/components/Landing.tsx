@@ -14,8 +14,8 @@ const Landing = () => {
             account,
             chain,
             openAccountModal,
-            openChainModal,
             openConnectModal,
+            openChainModal,
             mounted,
           }) => {
             const connected = mounted && account && chain;

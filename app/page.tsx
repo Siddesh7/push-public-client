@@ -13,6 +13,8 @@ import ChatList from "./components/ChatList";
 
 import {ActiveChat, CurrentChatContext} from "./contexts/currentChatContext";
 import ChatWindow from "./components/ChatWindow";
+import ChatRequests from "./components/ChatRequests";
+import ProfileTab from "./components/ProfileTab";
 export default function Home() {
   const [userAlice, setUserAlice] = useState<PushAPI>({} as PushAPI);
   const [userStream, setUserStream] = useState<any>();
@@ -54,7 +56,7 @@ export default function Home() {
   }, [signer]);
   return (
     <main
-      className="min-h-screen max-h-screen overflow-y-hidden bg-base-200"
+      className="min-h-screen max-h-screen overflow-y-hidden no-scrollbar"
       data-theme={theme}
     >
       {!isConnected ? (
@@ -88,9 +90,11 @@ export default function Home() {
           }}
         >
           <CurrentChatContext.Provider value={{activeChat, setActiveChat}}>
-            <div className="flex flex-row">
-              <div className="w-[400px]">
-                <ChatList />
+            <div className="flex flex-row overflow-y-hidden p-1 no-scrollbar">
+              <div className="max-w-[400px]">
+                <ProfileTab />
+                <ChatRequests />
+                <ChatList type="CHATS" />
               </div>
               <div className="w-full">
                 <ChatWindow />

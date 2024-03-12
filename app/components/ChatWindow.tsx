@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ChatSendComponent from "./ChatSendComponent";
 import ChatInfo from "./ChatInfo";
 import ChatMessages from "./ChatMessages";
@@ -12,6 +12,7 @@ const ChatWindow = () => {
   const {userAlice, userStream} = useUserAlice();
   const [showIncomingCall, setShowIncomingCall] = useState(false);
   const [incomingCallData, setIncomingCallData] = useState<any>({});
+
   if (userStream) {
     userStream.on(CONSTANTS.STREAM.VIDEO, (data: any) => {
       console.log("Incoming video call", data);
@@ -22,23 +23,22 @@ const ChatWindow = () => {
       }
     });
   }
+
   return (
-    <div className="min-h-full max-h-screen w-full">
+    <div className="min-h-full max-h-screen w-full overflow-y-hidden px-1">
       {activeChat.chatId && (
-        <div>
-          {" "}
-          <ChatInfo onShowSearch={() => {}} />
-          <div className="flex flex-col min-h-[92vh] max-h-[92vh] justify-between">
-            <div className="flex-grow overflow-y-scroll no-scrollbar">
-              <ChatMessages />
-            </div>
-            <div className="flex justify-end">
-              <ChatSendComponent />
-            </div>
+        <div className="flex flex-col items-center min-h-full">
+          <div className="h-[10vh] w-full">
+            <ChatInfo onShowSearch={() => {}} />
           </div>
-          {showIncomingCall && <IncomingCallCard callData={incomingCallData} />}
+          <ChatMessages />
+
+          <div className="h-[10vh] w-full">
+            <ChatSendComponent />
+          </div>
         </div>
       )}
+      {/* {showIncomingCall && <IncomingCallCard callData={incomingCallData} />} */}
     </div>
   );
 };

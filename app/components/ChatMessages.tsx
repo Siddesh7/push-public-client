@@ -16,6 +16,7 @@ const ChatMessages = () => {
     const chatHistory = await userAlice.chat.history(activeChat.chatId, {
       limit: 30,
     });
+    console.log("chatHistory", chatHistory);
     setChatMessages(chatHistory.reverse());
   };
   useEffect(() => {
@@ -33,28 +34,37 @@ const ChatMessages = () => {
     });
   }
 
-  useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({behavior: "smooth"});
-    endOfMessagesRef.current?.focus();
-  }, [chatMessages]);
+  // useEffect(() => {
+  //   endOfMessagesRef.current?.scrollIntoView({behavior: "smooth"});
+  // }, [chatMessages]);
 
   return (
-    <div className="py-2 pb-16 px-8 ">
+    <div className="max-h-[80vh] min-h-[80vh] w-full flex-grow overflow-y-scroll no-scrollbar pb-16 px-8">
       {chatMessages &&
         chatMessages.length > 0 &&
         chatMessages.map((chat, index) => {
           return (
             <div key={index}>
-              <ChatMessage
-                message={chat.messageContent}
-                ts={chat.timestamp}
-                nameOrAddress={chat.fromDID.slice(7)}
-              />
+              {chatMessages && chatMessages?.length - 1 === index ? (
+                <div key={index} ref={endOfMessagesRef}>
+                  <ChatMessage
+                    message={chat.messageContent}
+                    ts={chat.timestamp}
+                    nameOrAddress={chat.fromDID.slice(7)}
+                  />
+                </div>
+              ) : (
+                <div key={index}>
+                  <ChatMessage
+                    message={chat.messageContent}
+                    ts={chat.timestamp}
+                    nameOrAddress={chat.fromDID.slice(7)}
+                  />
+                </div>
+              )}
             </div>
           );
         })}
-
-      <div ref={endOfMessagesRef} />
     </div>
   );
 };
