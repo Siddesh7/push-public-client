@@ -34,9 +34,12 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   useEffect(() => {
     const fetchMetaTags = async (url: string) => {
       try {
-        const response = await fetch(url);
-        const html = await response.text();
-        const frameDetails: FrameDetails = getFormattedMetadata(URL, html);
+        const response = await fetch(`/api/frames?url=${url}`, {method: "GET"});
+
+        // const html = await response.text();
+        // console.log(html);
+        console.log("Response:", response);
+        const frameDetails: FrameDetails = getFormattedMetadata(URL, response);
 
         setMetaTags(frameDetails);
       } catch (err) {

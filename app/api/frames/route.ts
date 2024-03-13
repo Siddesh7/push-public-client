@@ -43,4 +43,32 @@ export async function POST(req: NextRequest): Promise<Response> {
     );
   }
 }
-export const GET = POST;
+export async function GET(req: NextRequest): Promise<Response> {
+  try {
+    const searchParams = req.nextUrl.searchParams;
+    const url = searchParams.get("url") ?? "";
+
+    console.log("URL:", url);
+
+    const response = await fetch(url, {
+      method: "GET",
+    });
+    const res = await response.text();
+    console.log("Response:", res);
+    return new NextResponse(JSON.stringify(res), {
+      status: 201,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (err) {
+    return new NextResponse(
+      JSON.stringify({message: "Internal server error"}),
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+}
