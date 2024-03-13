@@ -35,11 +35,8 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     const fetchMetaTags = async (url: string) => {
       try {
         const response = await fetch(`/api/frames?url=${url}`, {method: "GET"});
-
-        // const html = await response.text();
-        // console.log(html);
-        console.log("Response:", response);
-        const frameDetails: FrameDetails = getFormattedMetadata(URL, response);
+        const res = await response.json();
+        const frameDetails: FrameDetails = getFormattedMetadata(URL, res);
 
         setMetaTags(frameDetails);
       } catch (err) {
