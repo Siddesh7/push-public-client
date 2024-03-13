@@ -6,7 +6,7 @@ import {Providers} from "./providers";
 
 const ptSans = PT_Sans({weight: "400", subsets: ["latin"]});
 export const metadata: Metadata = {
-  title: "Push Public Client",
+  title: "Privy Chat",
   description: "Public Client to interact Push Network",
 };
 

@@ -26,7 +26,7 @@ import {ThemeContext} from "./contexts/themeContext";
 const {wallets} = getDefaultWallets();
 
 const config = getDefaultConfig({
-  appName: "RainbowKit demo",
+  appName: "Privy Chat",
   projectId: "c79671f77e15d3c16d8df828931df7a7",
   wallets: [
     ...wallets,
