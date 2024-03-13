@@ -15,7 +15,7 @@ const ChatList: React.FC<IChatList> = ({type}) => {
   const fetchChatList = async () => {
     if (!signer) return;
     const chatListResponse = await userAlice?.chat?.list(type, {limit: 20});
-    console.log("Chat list", chatListResponse);
+
     setChatList(chatListResponse);
   };
 

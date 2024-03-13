@@ -16,11 +16,10 @@ const ChatMessages = () => {
     const chatHistory = await userAlice.chat.history(activeChat.chatId, {
       limit: 30,
     });
-    console.log("chatHistory", chatHistory);
+
     setChatMessages(chatHistory.reverse());
   };
   useEffect(() => {
-    console.log("fetching chat messages");
     fetchChatMessages();
   }, [activeChat.chatId]);
 

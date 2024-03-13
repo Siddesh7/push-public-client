@@ -16,9 +16,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({onShowSearch}) => {
   const {userAlice, userStream, setUserAliceVideo, setUserAliceVideoData} =
     useUserAlice();
 
-  console.log("activeChat", activeChat);
   const InitiateCall = async (type: string) => {
-    console.log("Initiating call", type);
     if (!activeChat.nameOrAddress) return;
     const userAliceVideo = await userAlice.video.initialize(
       setUserAliceVideoData,

@@ -23,16 +23,13 @@ const ChatSendComponent = () => {
   };
   const sendMessage = async () => {
     if (!inputText || !activeChat.chatId) return;
-    console.log("Sending message", inputText);
     await userAlice.chat.send(activeChat.chatId, {
       content: inputText,
     });
     setInputText("");
   };
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {};
-  useEffect(() => {
-    console.log(inputText);
-  }, [inputText]);
+
   return (
     <div className="w-full px-4 py-2 relative">
       <label className="input input-bordered flex items-center gap-2 ">

@@ -75,10 +75,8 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
         value: data.params.value,
         data: (data.params.data as any) ?? undefined,
       });
-
-      console.log("Transaction hash:", hash);
     } catch (error) {
-      return "User rejected transaction";
+      return "Something went wrong";
     }
 
     return hash;

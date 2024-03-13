@@ -49,7 +49,6 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   };
 
   const onChatItemClick = () => {
-    console.log("Setting active chat", chatId);
     setActiveChat({chatId, nameOrAddress, icon, ensName, chatOrGroup});
   };
 

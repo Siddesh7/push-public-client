@@ -41,8 +41,6 @@ export default function Home() {
 
     setUserAlice(user);
     setUserStream(stream);
-
-    console.log("User logged in as", address);
   };
 
   useEffect(() => {
