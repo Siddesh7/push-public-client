@@ -60,20 +60,26 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     // console.log("Triggering transaction:", data.chainId.slice(7));
     // setShowSimulateModal(true);
     // setTxData(data);
-    console.log(data.chainId.slice(7));
-    console.log(chainId);
-    // if (chainId !== Number(data.chainId.slice(7))) {
-    //   await switchChain({
-    //     chainId: Number(data.chainId.slice(7)),
-    //   });
-    // }
-    const hash = await sendTransactionAsync({
-      account: address,
-      chainId: Number(data.chainId.slice(7)),
-      to: data.params.to as `0x${string}`,
-      value: data.params.value,
-      data: (data.params.data as any) ?? undefined,
-    });
+
+    if (chainId !== Number(data.chainId.slice(7))) {
+      await switchChain({
+        chainId: Number(data.chainId.slice(7)),
+      });
+    }
+    let hash;
+    try {
+      hash = await sendTransactionAsync({
+        account: address,
+        chainId: Number(data.chainId.slice(7)),
+        to: data.params.to as `0x${string}`,
+        value: data.params.value,
+        data: (data.params.data as any) ?? undefined,
+      });
+
+      console.log("Transaction hash:", hash);
+    } catch (error) {
+      return "User rejected transaction";
+    }
 
     return hash;
   };
@@ -83,9 +89,9 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     target?: string;
   }) => {
     let hash;
-    console.log("Button clicked:", button);
+
     if (button.action === "post_redirect" || button.action === "link") {
-      window.location.href = button.target!;
+      window.open(button.target!, "_blank");
       return;
     }
     if (button.action === "subscribe") {
@@ -119,7 +125,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
         buttonIndex: Number(button.index),
         inputText: inputText,
         userAddress: address,
-        transactionId: hash,
+        transactionId: hash ?? "Failed",
         postURL:
           button.action === "tx"
             ? metaTags.postURL
