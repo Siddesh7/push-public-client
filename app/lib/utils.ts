@@ -114,7 +114,7 @@ function getFormattedMetadata(URL: string, data: any) {
         const indexZeroExists = frameDetails.buttons.some(
           (button) => button.index === number
         );
-        console.log("Index zero exists:", indexZeroExists);
+
         if (!indexZeroExists) {
           frameDetails.buttons.push({
             index: number,
@@ -127,7 +127,6 @@ function getFormattedMetadata(URL: string, data: any) {
             (button) => button.index === number
           );
 
-          console.log("Index to update:", indexToUpdate);
           frameDetails.buttons[indexToUpdate].target = content;
         }
       }

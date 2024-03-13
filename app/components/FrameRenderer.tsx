@@ -1,14 +1,26 @@
 "use client";
 import Image from "next/image";
 import React, {useState, useEffect} from "react";
-import {useAccount} from "wagmi";
+import {
+  useAccount,
+  useChainId,
+  usePrepareTransactionRequest,
+  useSendTransaction,
+  useSwitchChain,
+} from "wagmi";
 import {FrameDetails, getFormattedMetadata, getHostname} from "../lib/utils";
 import Link from "next/link";
 import {useUserAlice} from "../contexts/userAliceContext";
+import {BsLightning} from "react-icons/bs";
+import SimulateTx from "./SimulateTx";
 
 function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const {userAlice} = useUserAlice();
   const {address} = useAccount();
+  const {sendTransactionAsync} = useSendTransaction();
+  const {chains, switchChain} = useSwitchChain();
+  const chainId = useChainId();
+
   const [metaTags, setMetaTags] = useState<FrameDetails>({
     image: "",
     siteURL: "",
@@ -17,12 +29,15 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     input: {name: "", content: ""},
   });
   const [inputText, setInputText] = useState("");
+  // const [showSimulateModal, setShowSimulateModal] = useState(false);
+  // const [txData, setTxData] = useState<any>({});
   useEffect(() => {
     const fetchMetaTags = async (url: string) => {
       try {
         const response = await fetch(url);
         const html = await response.text();
         const frameDetails: FrameDetails = getFormattedMetadata(URL, html);
+
         setMetaTags(frameDetails);
       } catch (err) {
         console.error("Error fetching meta tags:", err);
@@ -40,17 +55,60 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     );
     return true;
   };
+
+  const TriggerTx = async (data: any) => {
+    // console.log("Triggering transaction:", data.chainId.slice(7));
+    // setShowSimulateModal(true);
+    // setTxData(data);
+    console.log(data.chainId.slice(7));
+    console.log(chainId);
+    // if (chainId !== Number(data.chainId.slice(7))) {
+    //   await switchChain({
+    //     chainId: Number(data.chainId.slice(7)),
+    //   });
+    // }
+    const hash = await sendTransactionAsync({
+      account: address,
+      chainId: Number(data.chainId.slice(7)),
+      to: data.params.to as `0x${string}`,
+      value: data.params.value,
+      data: (data.params.data as any) ?? undefined,
+    });
+
+    return hash;
+  };
   const onButtonClick = async (button: {
     index: string;
     action?: string;
     target?: string;
   }) => {
+    let hash;
+    console.log("Button clicked:", button);
     if (button.action === "post_redirect" || button.action === "link") {
       window.location.href = button.target!;
       return;
     }
     if (button.action === "subscribe") {
       await subscribeToChannel(button.target!);
+    }
+    if (button.action === "tx") {
+      const response = await fetch("/api/frames/tx", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          buttonIndex: Number(button.index),
+          userAddress: address,
+          inputText: inputText,
+          postURL: button?.target!.startsWith("http")
+            ? button.target
+            : metaTags.postURL,
+        }),
+      });
+      const data = await response.json();
+
+      hash = await TriggerTx(data);
     }
     const response = await fetch("/api/frames", {
       method: "POST",
@@ -61,18 +119,24 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
         buttonIndex: Number(button.index),
         inputText: inputText,
         userAddress: address,
-        postURL: button?.target!.startsWith("http")
-          ? button.target
-          : metaTags.postURL,
+        transactionId: hash,
+        postURL:
+          button.action === "tx"
+            ? metaTags.postURL
+            : button?.target!.startsWith("http")
+            ? button.target
+            : metaTags.postURL,
       }),
     });
     const data = await response.json();
     const frameDetails: FrameDetails = getFormattedMetadata(URL, data.data);
     setInputText("");
+
     setMetaTags(frameDetails);
   };
   return (
     <div className="w-full h-full">
+      {/* {showSimulateModal && <SimulateTx data={txData} />} */}
       {metaTags.image && (
         <div className="size-84 flex flex-col gap-2 justify-center border-1 rounded-t-xl bg-white">
           <Link href={URL} target="blank">
@@ -106,7 +170,9 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
                   onButtonClick(button);
                 }}
               >
-                {button.content} {}
+                {button.content} {button.action === "tx" && <BsLightning />}{" "}
+                {button.action === "link" && "🔗"}
+                {button.action === "post_redirect" && "🔗"}
               </button>
             ))}
           </div>

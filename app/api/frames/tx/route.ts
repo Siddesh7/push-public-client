@@ -4,11 +4,8 @@ export async function POST(req: NextRequest): Promise<Response> {
   try {
     const body = await req.json();
 
-    const {buttonIndex, inputText, userAddress, postURL, transactionId} = body;
-    console.log("Button index:", buttonIndex);
-    console.log("Input text:", inputText);
-    console.log("User address:", userAddress);
-    console.log("Post URL:", postURL);
+    const {buttonIndex, inputText, userAddress, postURL} = body;
+
     const response = await fetch(postURL, {
       method: "POST",
       headers: {
@@ -19,14 +16,13 @@ export async function POST(req: NextRequest): Promise<Response> {
           buttonIndex,
           inputText,
           userAddress,
-          transactionId,
           fid: userAddress,
         },
       }),
     });
-    const htmlContent = await response.text(); // Get the HTML content as text
+    const res = await response.json();
 
-    return new NextResponse(JSON.stringify({data: htmlContent}), {
+    return new NextResponse(JSON.stringify(res), {
       status: 201,
       headers: {
         "Content-Type": "application/json",
