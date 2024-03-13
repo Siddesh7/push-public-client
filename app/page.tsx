@@ -15,6 +15,7 @@ import {ActiveChat, CurrentChatContext} from "./contexts/currentChatContext";
 import ChatWindow from "./components/ChatWindow";
 import ChatRequests from "./components/ChatRequests";
 import ProfileTab from "./components/ProfileTab";
+// import NewChatOrSearchChat from "./components/NewChatOrSearchChat";
 export default function Home() {
   const [userAlice, setUserAlice] = useState<PushAPI>({} as PushAPI);
   const [userStream, setUserStream] = useState<any>();
@@ -28,7 +29,7 @@ export default function Home() {
 
   const initializeUser = async () => {
     const user = await PushAPI.initialize(signer, {
-      env: CONSTANTS.ENV.STAGING,
+      env: CONSTANTS.ENV.PROD,
     });
 
     const stream = await user.initStream([
@@ -44,7 +45,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    setTheme(localStorage.getItem("theme") || "garden");
+    setTheme(localStorage.getItem("theme") || "halloween");
     if (!signer) return;
     initializeUser();
 
@@ -92,6 +93,7 @@ export default function Home() {
               <div className="max-w-[400px]">
                 <ProfileTab />
                 <ChatRequests />
+                {/* <NewChatOrSearchChat /> */}
                 <ChatList type="CHATS" />
               </div>
               <div className="w-full">

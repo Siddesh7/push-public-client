@@ -6,7 +6,7 @@ interface Theme {
 }
 
 const lightTheme: Theme = {
-  theme: "garden",
+  theme: "halloween",
   setTheme: () => {},
 };
 
