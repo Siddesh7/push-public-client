@@ -55,7 +55,6 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
       icon,
       ensName,
       chatOrGroup,
-      search: "",
     });
   };
 
