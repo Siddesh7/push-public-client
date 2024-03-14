@@ -7,12 +7,14 @@ import {
   usePrepareTransactionRequest,
   useSendTransaction,
   useSwitchChain,
+  useWalletClient,
 } from "wagmi";
 import {FrameDetails, getFormattedMetadata, getHostname} from "../lib/utils";
 import Link from "next/link";
 import {useUserAlice} from "../contexts/userAliceContext";
 import {BsLightning} from "react-icons/bs";
 import SimulateTx from "./SimulateTx";
+import {PushAPI} from "@pushprotocol/restapi";
 
 function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const {userAlice} = useUserAlice();
@@ -20,6 +22,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const {sendTransactionAsync} = useSendTransaction();
   const {chains, switchChain} = useSwitchChain();
   const chainId = useChainId();
+  const {data: signer} = useWalletClient();
 
   const [metaTags, setMetaTags] = useState<FrameDetails>({
     image: "",
@@ -50,9 +53,17 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   }, [URL]);
 
   const subscribeToChannel = async (channel: string) => {
-    const response = await userAlice?.notification.subscribe(
-      `eip155:11155111:${channel}`
-    );
+    try {
+      const newUserAlice = await PushAPI.initialize(signer, {
+        env: chainId === 1 ? "prod" : ("staging" as any),
+      });
+      const response = await newUserAlice?.notification.subscribe(
+        `eip155:${chainId}:${channel}`
+      );
+      console.log("Subscribed to channel:", response);
+    } catch (error) {
+      return false;
+    }
     return true;
   };
 
@@ -92,8 +103,19 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
       window.open(button.target!, "_blank");
       return;
     }
-    if (button.action === "subscribe") {
-      await subscribeToChannel(button.target!);
+    if (button.action?.includes("subscribe")) {
+      console.log("Subscribing to channel:", button.target);
+
+      const desiredChainId = button.action?.split(":")[1];
+
+      if (chainId !== Number(desiredChainId)) {
+        await switchChain({
+          chainId: Number(desiredChainId),
+        });
+      }
+
+      if (chainId === Number(desiredChainId))
+        await subscribeToChannel(button.target!);
     }
     if (button.action === "tx") {
       const response = await fetch("/api/frames/tx", {
