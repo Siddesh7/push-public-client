@@ -64,6 +64,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
       const response = await userAlice.notification.subscribe(
         `eip155:${desiredChain}:${channel}`
       );
+      if (response.message.includes("rejected")) return false;
       console.log("Subscribed to channel:", response);
     } catch (error) {
       return false;
@@ -107,7 +108,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
 
     if (chainId === Number(desiredChainId)) {
       try {
-        const response = writeContractAsync({
+        const response = await writeContractAsync({
           abi: [
             {
               inputs: [],
@@ -143,19 +144,28 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     if (button.action?.includes("subscribe")) {
       const desiredChainId = button.action?.split(":")[1];
       if (mainnets.some((chain) => chain === Number(desiredChainId))) {
-        if (chainId !== Number(desiredChainId)) {
-          await switchChain({
-            chainId: Number(desiredChainId),
-          });
-        }
+        try {
+          if (chainId !== Number(desiredChainId)) {
+            switchChain({
+              chainId: Number(desiredChainId),
+            });
+          }
 
-        if (chainId === Number(desiredChainId)) {
-          await subscribeToChannel(button.target!, desiredChainId);
-          SubscribeStatus = "Subscribed";
+          if (chainId === Number(desiredChainId)) {
+            const res = await subscribeToChannel(
+              button.target!,
+              desiredChainId
+            );
+            if (!res) return;
+            SubscribeStatus = "Subscribed";
+          }
+        } catch (error) {
+          return;
         }
       } else {
         SubscribeStatus = "error";
         alert("Testnet channels are not supported");
+        return;
       }
     }
     if (button.action === "tx") {
@@ -180,6 +190,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     if (button.action === "mint") {
       try {
         const res = await mintNFT(button.target!);
+        console.log("Minting NFT:", res);
       } catch (error) {
         console.error("Error minting NFT:", error);
         return;
