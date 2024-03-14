@@ -60,16 +60,22 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
 
   const subscribeToChannel = async (channel: string, desiredChain: any) => {
     try {
-      console.log(`eip155:${desiredChain}:${channel}`);
-      const response = await userAlice.notification.subscribe(
-        `eip155:${desiredChain}:${channel}`
-      );
-      if (response.message.includes("rejected")) return false;
-      console.log("Subscribed to channel:", response);
+      if (chainId !== Number(desiredChain)) {
+        switchChain({
+          chainId: Number(desiredChain),
+        });
+      }
+      if (chainId === Number(desiredChain)) {
+        const response = await userAlice.notification.subscribe(
+          `eip155:${desiredChain}:${channel}`
+        );
+        if (response.message.includes("rejected")) return false;
+        return true;
+      }
     } catch (error) {
       return false;
     }
-    return true;
+    return false;
   };
 
   const TriggerTx = async (data: any) => {
@@ -100,14 +106,13 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const mintNFT = async (address: string) => {
     const [, desiredChainId, contractAddress] = address.split(":");
 
-    if (chainId !== Number(desiredChainId)) {
-      switchChain({
-        chainId: Number(desiredChainId),
-      });
-    }
-
-    if (chainId === Number(desiredChainId)) {
-      try {
+    try {
+      if (chainId !== Number(desiredChainId)) {
+        switchChain({
+          chainId: Number(desiredChainId),
+        });
+      }
+      if (chainId === Number(desiredChainId)) {
         const response = await writeContractAsync({
           abi: [
             {
@@ -122,12 +127,13 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
           functionName: "safeMint",
           args: [],
         });
-        return response;
-      } catch (error) {
-        console.error("Error minting NFT:", error);
-        return false;
+        console.log("Minting NFT:", response);
+        return true;
       }
+    } catch (error) {
+      return false;
     }
+
     return false;
   };
   const onButtonClick = async (button: {
@@ -145,20 +151,9 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
       const desiredChainId = button.action?.split(":")[1];
       if (mainnets.some((chain) => chain === Number(desiredChainId))) {
         try {
-          if (chainId !== Number(desiredChainId)) {
-            switchChain({
-              chainId: Number(desiredChainId),
-            });
-          }
-
-          if (chainId === Number(desiredChainId)) {
-            const res = await subscribeToChannel(
-              button.target!,
-              desiredChainId
-            );
-            if (!res) return;
-            SubscribeStatus = "Subscribed";
-          }
+          const res = await subscribeToChannel(button.target!, desiredChainId);
+          if (!res) return;
+          SubscribeStatus = "Subscribed";
         } catch (error) {
           return;
         }
@@ -191,6 +186,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
       try {
         const res = await mintNFT(button.target!);
         console.log("Minting NFT:", res);
+        if (!res) return;
       } catch (error) {
         console.error("Error minting NFT:", error);
         return;
