@@ -35,7 +35,7 @@ const config = getDefaultConfig({
       wallets: [argentWallet, trustWallet, ledgerWallet],
     },
   ],
-  chains: [base, sepolia, mainnet, polygon, optimism, polygonAmoy],
+  chains: [mainnet, sepolia, polygon, base],
   ssr: true,
 });
 

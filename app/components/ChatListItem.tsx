@@ -48,16 +48,22 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
       .padStart(2, "0")}/${date.getFullYear()}`;
   };
 
-  const onChatItemClick = () => {
-    setActiveChat({chatId, nameOrAddress, icon, ensName, chatOrGroup});
-  };
+  // const onChatItemClick = () => {
+  //   setActiveChat({
+  //     chatId,
+  //     nameOrAddress,
+  //     icon,
+  //     ensName,
+  //     chatOrGroup,
+  //     search: "",
+  //   });
+  // };
 
   return (
     <div
       className={`flex flex-row gap-2 overflow-x-hidden hover:bg-white/20 hover:bg-opacity-25  py-3 items-center px-2 border-b-2 border-[gray] cursor-pointer relative ${
         focus && `bg-gray-400 rounded-lg`
       }`}
-      onClick={onChatItemClick}
     >
       <div className="avatar">
         <div className="w-10 h-10 rounded-full">
@@ -71,9 +77,9 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-row justify-between pr-4">
+      <div className="flex flex-row justify-between max-w-[70%]  pr-4">
         <div className="flex flex-col justify-center truncate">
-          <p className="font-extrabold text-lg text-primary">
+          <p className="font-extrabold text-lg text-primary  truncate">
             {ensName
               ? ensName
               : isAddress(nameOrAddress)

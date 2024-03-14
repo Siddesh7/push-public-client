@@ -4,11 +4,15 @@ export async function POST(req: NextRequest): Promise<Response> {
   try {
     const body = await req.json();
 
-    const {buttonIndex, inputText, userAddress, postURL, transactionId} = body;
-    console.log("Button index:", buttonIndex);
-    console.log("Input text:", inputText);
-    console.log("User address:", userAddress);
-    console.log("Post URL:", postURL);
+    const {
+      buttonIndex,
+      inputText,
+      userAddress,
+      postURL,
+      transactionId,
+      status,
+    } = body;
+
     const response = await fetch(postURL, {
       method: "POST",
       headers: {
@@ -22,6 +26,8 @@ export async function POST(req: NextRequest): Promise<Response> {
           transactionId,
           fid: userAddress,
         },
+        status: status,
+        message: status && "Chain Not Supported",
       }),
     });
     const htmlContent = await response.text(); // Get the HTML content as text
@@ -48,13 +54,10 @@ export async function GET(req: NextRequest): Promise<Response> {
     const searchParams = req.nextUrl.searchParams;
     const url = searchParams.get("url") ?? "";
 
-    console.log("URL:", url);
-
     const response = await fetch(url, {
       method: "GET",
     });
     const res = await response.text();
-    console.log("Response:", res);
     return new NextResponse(JSON.stringify(res), {
       status: 201,
       headers: {

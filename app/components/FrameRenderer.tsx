@@ -8,6 +8,7 @@ import {
   useSendTransaction,
   useSwitchChain,
   useWalletClient,
+  useWriteContract,
 } from "wagmi";
 import {FrameDetails, getFormattedMetadata, getHostname} from "../lib/utils";
 import Link from "next/link";
@@ -15,14 +16,17 @@ import {useUserAlice} from "../contexts/userAliceContext";
 import {BsLightning} from "react-icons/bs";
 import SimulateTx from "./SimulateTx";
 import {PushAPI} from "@pushprotocol/restapi";
+import {erc721Abi} from "viem";
+import {FaBell} from "react-icons/fa";
 
 function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const {userAlice} = useUserAlice();
   const {address} = useAccount();
   const {sendTransactionAsync} = useSendTransaction();
-  const {chains, switchChain} = useSwitchChain();
+  const {switchChain} = useSwitchChain();
   const chainId = useChainId();
-  const {data: signer} = useWalletClient();
+  const {writeContractAsync} = useWriteContract();
+  // const {data: signer} = useWalletClient();
 
   const [metaTags, setMetaTags] = useState<FrameDetails>({
     image: "",
@@ -34,6 +38,8 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const [inputText, setInputText] = useState("");
   // const [showSimulateModal, setShowSimulateModal] = useState(false);
   // const [txData, setTxData] = useState<any>({});
+
+  const mainnets = [1, 137, 56, 42161, 1101];
   useEffect(() => {
     const fetchMetaTags = async (url: string) => {
       try {
@@ -52,13 +58,11 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     }
   }, [URL]);
 
-  const subscribeToChannel = async (channel: string) => {
+  const subscribeToChannel = async (channel: string, desiredChain: any) => {
     try {
-      const newUserAlice = await PushAPI.initialize(signer, {
-        env: chainId === 1 ? "prod" : ("staging" as any),
-      });
-      const response = await newUserAlice?.notification.subscribe(
-        `eip155:${chainId}:${channel}`
+      console.log(`eip155:${desiredChain}:${channel}`);
+      const response = await userAlice.notification.subscribe(
+        `eip155:${desiredChain}:${channel}`
       );
       console.log("Subscribed to channel:", response);
     } catch (error) {
@@ -73,7 +77,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     // setTxData(data);
 
     if (chainId !== Number(data.chainId.slice(7))) {
-      await switchChain({
+      switchChain({
         chainId: Number(data.chainId.slice(7)),
       });
     }
@@ -92,30 +96,67 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
 
     return hash;
   };
+  const mintNFT = async (address: string) => {
+    const [, desiredChainId, contractAddress] = address.split(":");
+
+    if (chainId !== Number(desiredChainId)) {
+      switchChain({
+        chainId: Number(desiredChainId),
+      });
+    }
+
+    if (chainId === Number(desiredChainId)) {
+      try {
+        const response = writeContractAsync({
+          abi: [
+            {
+              inputs: [],
+              name: "safeMint",
+              outputs: [],
+              stateMutability: "nonpayable",
+              type: "function",
+            },
+          ],
+          address: contractAddress as `0x${string}`,
+          functionName: "safeMint",
+          args: [],
+        });
+        return response;
+      } catch (error) {
+        console.error("Error minting NFT:", error);
+        return false;
+      }
+    }
+    return false;
+  };
   const onButtonClick = async (button: {
     index: string;
     action?: string;
     target?: string;
   }) => {
     let hash;
-
+    let SubscribeStatus = null;
     if (button.action === "post_redirect" || button.action === "link") {
       window.open(button.target!, "_blank");
       return;
     }
     if (button.action?.includes("subscribe")) {
-      console.log("Subscribing to channel:", button.target);
-
       const desiredChainId = button.action?.split(":")[1];
+      if (mainnets.some((chain) => chain === Number(desiredChainId))) {
+        if (chainId !== Number(desiredChainId)) {
+          await switchChain({
+            chainId: Number(desiredChainId),
+          });
+        }
 
-      if (chainId !== Number(desiredChainId)) {
-        await switchChain({
-          chainId: Number(desiredChainId),
-        });
+        if (chainId === Number(desiredChainId)) {
+          await subscribeToChannel(button.target!, desiredChainId);
+          SubscribeStatus = "Subscribed";
+        }
+      } else {
+        SubscribeStatus = "error";
+        alert("Testnet channels are not supported");
       }
-
-      if (chainId === Number(desiredChainId))
-        await subscribeToChannel(button.target!);
     }
     if (button.action === "tx") {
       const response = await fetch("/api/frames/tx", {
@@ -136,6 +177,14 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
 
       hash = await TriggerTx(data);
     }
+    if (button.action === "mint") {
+      try {
+        const res = await mintNFT(button.target!);
+      } catch (error) {
+        console.error("Error minting NFT:", error);
+        return;
+      }
+    }
     const response = await fetch("/api/frames", {
       method: "POST",
       headers: {
@@ -152,6 +201,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
             : button?.target!.startsWith("http")
             ? button.target
             : metaTags.postURL,
+        status: SubscribeStatus,
       }),
     });
     const data = await response.json();
@@ -161,10 +211,10 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     setMetaTags(frameDetails);
   };
   return (
-    <div className="w-full h-full">
+    <div className={`w-full h-full ${!metaTags.image && "pt-2"}`}>
       {/* {showSimulateModal && <SimulateTx data={txData} />} */}
-      {metaTags.image && (
-        <div className="size-84 flex flex-col gap-2 justify-center border-1 rounded-t-xl bg-white">
+      {metaTags.image ? (
+        <div className="max-w-lg size-84 flex flex-col gap-2 justify-center border-1 rounded-t-xl bg-white">
           <Link href={URL} target="blank">
             <Image
               src={metaTags.image}
@@ -199,19 +249,21 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
                 {button.content} {button.action === "tx" && <BsLightning />}{" "}
                 {button.action === "link" && "🔗"}
                 {button.action === "post_redirect" && "🔗"}
+                {button.action?.includes("subscribe") && <FaBell />}
+                {button.action === "mint" && "💰"}
               </button>
             ))}
           </div>
           <div className="flex justify-end mr-4 mb-2">
-            <a
-              href={`https://${getHostname(URL)}`}
-              target="blank"
-              className="text-black/60 text"
-            >
+            <a href={URL} target="blank" className="text-black/60 text">
               {getHostname(URL)}
             </a>
           </div>
         </div>
+      ) : (
+        <a href={URL} target="blank" className="px-4 link">
+          {URL}
+        </a>
       )}
     </div>
   );

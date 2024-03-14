@@ -14,6 +14,7 @@ const ProfileTab = () => {
   const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
   const {data: ensName} = useEnsName({
     address: userInfo.address as `0x${string}`,
+    chainId: 1,
   });
   const fetchUserInfo = async () => {
     if (!address || !userAlice || !signer) return;

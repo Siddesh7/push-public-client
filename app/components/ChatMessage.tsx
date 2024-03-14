@@ -23,6 +23,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   const {activeChat} = useCurrentChat();
   const {data: ensName} = useEnsName({
     address: nameOrAddress as `0x${string}`,
+    chainId: 1,
   });
 
   const checkSelf = () => {
@@ -63,7 +64,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         <p>{checkSelf() ? "You" : ensName ?? truncateAddress(nameOrAddress)}</p>
       )}
       <div
-        className={`chat-bubble flex  bg-white/10 bg-opacity-25 max-w-lg ${
+        className={`chat-bubble flex  bg-white/10 bg-opacity-25 ${
           hasWebLink(message) ? "p-0 pb-2 flex-col" : "px-4 py-2 flex-row gap-2"
         }`}
       >

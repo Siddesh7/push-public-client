@@ -9,15 +9,17 @@ const ChatMessages = () => {
   const {activeChat} = useCurrentChat();
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
-
+  const [loading, setLoading] = useState(false);
   const fetchChatMessages = async () => {
     if (!activeChat.chatId) return;
+
+    setLoading(true);
 
     const chatHistory = await userAlice.chat.history(activeChat.chatId, {
       limit: 30,
     });
-
     setChatMessages(chatHistory.reverse());
+    setLoading(false);
   };
   useEffect(() => {
     fetchChatMessages();
@@ -39,7 +41,8 @@ const ChatMessages = () => {
 
   return (
     <div className="max-h-[80vh] min-h-[80vh] w-full flex-grow overflow-y-scroll no-scrollbar pb-16 px-8">
-      {chatMessages &&
+      {!loading &&
+        chatMessages &&
         chatMessages.length > 0 &&
         chatMessages.map((chat, index) => {
           return (
