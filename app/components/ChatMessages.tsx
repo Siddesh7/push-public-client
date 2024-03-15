@@ -3,6 +3,7 @@ import {useCurrentChat} from "../contexts/currentChatContext";
 import {CONSTANTS, IFeeds} from "@pushprotocol/restapi";
 import {useUserAlice} from "../contexts/userAliceContext";
 import ChatMessage from "./ChatMessage";
+import RequestOrInviteAcceptForm from "./RequestOrInviteAcceptForm";
 
 const ChatMessages = () => {
   const {userAlice, userStream} = useUserAlice();
@@ -67,6 +68,8 @@ const ChatMessages = () => {
             </div>
           );
         })}
+
+      {activeChat.chatList === "REQUESTS" && <RequestOrInviteAcceptForm />}
     </div>
   );
 };

@@ -12,6 +12,7 @@ interface ChatListItemProps {
   lastSentOrReceivedTS?: number;
   focus?: boolean;
   chatOrGroup: "CHAT" | "GROUP";
+  chatList: "CHATS" | "REQUESTS";
 }
 const ChatListItem: React.FC<ChatListItemProps> = ({
   icon,
@@ -21,6 +22,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
   lastSentOrReceivedTS,
   focus,
   chatOrGroup,
+  chatList,
 }) => {
   const {setActiveChat} = useCurrentChat();
   const {data: ensName} = useEnsName({
@@ -55,6 +57,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
       icon,
       ensName,
       chatOrGroup,
+      chatList,
     });
   };
 
@@ -88,7 +91,7 @@ const ChatListItem: React.FC<ChatListItemProps> = ({
           </p>
           <p className="truncate text-sm">{lastMessage}</p>
         </div>
-        <div className="absolute top-25 right-2">
+        <div className="absolute top-25 right-3">
           {lastSentOrReceivedTS && (
             <p className="text-sm">{getTimeFormatted()}</p>
           )}

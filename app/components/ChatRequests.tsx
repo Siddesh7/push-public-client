@@ -4,9 +4,10 @@ import {useUserAlice} from "../contexts/userAliceContext";
 import {useWalletClient} from "wagmi";
 import {IoMdArrowRoundBack} from "react-icons/io";
 import ChatList from "./ChatList";
+import {CONSTANTS} from "@pushprotocol/restapi";
 
 const ChatRequests = () => {
-  const {userAlice} = useUserAlice();
+  const {userAlice, userStream} = useUserAlice();
   const {data: signer} = useWalletClient();
 
   const [chatRequestsCount, setChatRequestsCount] = useState<number>(0);
@@ -15,22 +16,27 @@ const ChatRequests = () => {
     const chats = await userAlice?.chat?.list("REQUESTS", {limit: 30});
     setChatRequestsCount(chats?.length);
   };
+  if (userStream) {
+    userStream?.on(CONSTANTS.STREAM.CHAT_OPS, (data: any) => {
+      fetchChatRequests();
+    });
+  }
 
   useEffect(() => {
     if (userAlice && signer) fetchChatRequests();
   }, [userAlice, signer]);
   return (
-    <div className="drawer z-[3]">
+    <div className="drawer z-[3] ">
       <input
         id="my-drawer"
         type="checkbox"
         className="drawer-toggle"
         checked={showDrawer}
       />
-      <div className={`drawer-content`}>
+      <div className={`drawer-content `}>
         <label
           htmlFor="my-drawer"
-          className={`w-full drawer-button flex flex-row item-center gap-2 px-4 my-1 overflow-x-hidden hover:bg-white/20 hover:bg-opacity-25 hover:rounded-xl   py-4 cursor-pointer relative`}
+          className={`w-full drawer-button flex flex-row item-center gap-2 px-4 my-1 overflow-x-hidden  hover:bg-white/20 hover:bg-opacity-25 hover:rounded-xl   py-4 cursor-pointer relative`}
           onClick={() => {
             setShowDrawer(true);
           }}
@@ -45,7 +51,7 @@ const ChatRequests = () => {
         </label>
       </div>
       <div
-        className={`drawer-side w-[420px] max-h-screen overflow-y-hidden z-0 ${
+        className={`drawer-side w-[405px] no-scrollbar max-h-screen overflow-y-hidden z-0 ${
           !showDrawer && "hidden"
         }`}
       >
@@ -54,9 +60,9 @@ const ChatRequests = () => {
           aria-label="close sidebar"
           className=" bg-black z-[4]"
         ></label>
-        <div className="py-4 min-w-[420px] max-w-[420px] gap-4 min-h-full bg-base-200 text-base-content man-h-screen overflow-y-hidden no-scrollbar flex flex-col">
+        <div className="py-4 min-w-[405px] max-w-[405px] gap-4 min-h-full bg-base-200 text-base-content man-h-screen overflow-y-hidden no-scrollbar flex flex-col">
           <div
-            className="flex px-2"
+            className="flex px-2 cursor-pointer"
             onClick={() => {
               setShowDrawer(false);
             }}

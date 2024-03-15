@@ -51,9 +51,13 @@ const ChatList: React.FC<IChatList> = ({type}) => {
         fetchChatList();
       }
     });
+    userStream?.on(CONSTANTS.STREAM.CHAT_OPS, (data: any) => {
+      console.log("data", data);
+      fetchChatList();
+    });
   }
   return (
-    <div className="h-screen min-w-[400px] overflow-y-scroll no-scrollbar border-y-2 border-[gray]">
+    <div className="h-[84vh] min-w-[400px] overflow-y-scroll no-scrollbar border-y-2 border-[gray]">
       {/* {isAddress(searchList?.did) ? (
         <ChatListItem
           icon={
@@ -143,6 +147,7 @@ const ChatList: React.FC<IChatList> = ({type}) => {
               lastMessage={chat.msg.messageContent}
               chatOrGroup={chat.groupInformation ? "GROUP" : "CHAT"}
               focus={false}
+              chatList={type}
             />
           );
         })}

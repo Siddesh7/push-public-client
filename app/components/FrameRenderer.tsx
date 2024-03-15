@@ -103,38 +103,65 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
 
     return hash;
   };
+  // const mintNFT = async (address: string) => {
+  //   const [, desiredChainId, contractAddress] = address.split(":");
+
+  //   try {
+  //     if (chainId !== Number(desiredChainId)) {
+  //       switchChain({
+  //         chainId: Number(desiredChainId),
+  //       });
+  //     }
+  //     if (chainId === Number(desiredChainId)) {
+  //       const response = await writeContractAsync({
+  //         abi: [
+  //           {
+  //             inputs: [],
+  //             name: "safeMint",
+  //             outputs: [],
+  //             stateMutability: "nonpayable",
+  //             type: "function",
+  //           },
+  //         ],
+  //         address: contractAddress as `0x${string}`,
+  //         functionName: "safeMint",
+  //         args: [],
+  //       });
+  //       console.log("Minting NFT:", response);
+  //       return true;
+  //     }
+  //   } catch (error) {
+  //     return false;
+  //   }
+
+  //   return false;
+  // };
+
   const mintNFT = async (address: string) => {
     const [, desiredChainId, contractAddress] = address.split(":");
 
     try {
-      if (chainId !== Number(desiredChainId)) {
-        switchChain({
-          chainId: Number(desiredChainId),
-        });
-      }
-      if (chainId === Number(desiredChainId)) {
-        const response = await writeContractAsync({
-          abi: [
-            {
-              inputs: [],
-              name: "safeMint",
-              outputs: [],
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-          ],
-          address: contractAddress as `0x${string}`,
-          functionName: "safeMint",
-          args: [],
-        });
-        console.log("Minting NFT:", response);
-        return true;
-      }
+      await switchChain({chainId: Number(desiredChainId)});
+
+      const response = await writeContractAsync({
+        abi: [
+          {
+            inputs: [],
+            name: "safeMint",
+            outputs: [],
+            stateMutability: "nonpayable",
+            type: "function",
+          },
+        ],
+        address: contractAddress as `0x${string}`,
+        functionName: "safeMint",
+        args: [],
+      });
+      console.log("Minting NFT:", response);
+      return true;
     } catch (error) {
       return false;
     }
-
-    return false;
   };
   const onButtonClick = async (button: {
     index: string;
@@ -192,6 +219,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
         return;
       }
     }
+
     const response = await fetch("/api/frames", {
       method: "POST",
       headers: {
