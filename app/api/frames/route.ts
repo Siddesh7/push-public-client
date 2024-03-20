@@ -11,6 +11,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       postURL,
       transactionId,
       status,
+      state,
     } = body;
 
     const response = await fetch(postURL, {
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest): Promise<Response> {
           userAddress,
           transactionId,
           fid: userAddress,
+          state,
         },
         status: status,
         message: status && "Chain Not Supported",

@@ -8,7 +8,12 @@ import {
   useSwitchChain,
   useWriteContract,
 } from "wagmi";
-import {FrameDetails, getFormattedMetadata, getHostname} from "../lib/utils";
+import {
+  FrameDetails,
+  getFormattedMetadata,
+  getHostname,
+  isSupportedChain,
+} from "../lib/utils";
 import Link from "next/link";
 import {useUserAlice} from "../contexts/userAliceContext";
 import {BsLightning} from "react-icons/bs";
@@ -22,7 +27,6 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   const {switchChain} = useSwitchChain();
   const chainId = useChainId();
   const {writeContractAsync} = useWriteContract();
-  // const {data: signer} = useWalletClient();
 
   const [metaTags, setMetaTags] = useState<FrameDetails>({
     image: "",
@@ -32,10 +36,8 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     input: {name: "", content: ""},
   });
   const [inputText, setInputText] = useState("");
-  // const [showSimulateModal, setShowSimulateModal] = useState(false);
-  // const [txData, setTxData] = useState<any>({});
 
-  const mainnets = [1, 137, 56, 42161, 1101];
+  // Fetches the metadata for the URL to fetch the Frame
   useEffect(() => {
     const fetchMetaTags = async (url: string) => {
       try {
@@ -54,24 +56,8 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     }
   }, [URL]);
 
+  // Function to subscribe to a channel
   const subscribeToChannel = async (channel: string, desiredChain: any) => {
-    // try {
-    //   if (chainId !== Number(desiredChain)) {
-    //     switchChain({
-    //       chainId: Number(desiredChain),
-    //     });
-    //   }
-    //   if (chainId === Number(desiredChain)) {
-    //     const response = await userAlice.notification.subscribe(
-    //       `eip155:${desiredChain}:${channel}`
-    //     );
-    //     if (response.message.includes("rejected")) return false;
-    //     return true;
-    //   }
-    // } catch (error) {
-    //   return {status: "failure", message: "Something went wrong"};
-    // }
-    // return false;
     if (chainId !== Number(desiredChain)) {
       switchChain({
         chainId: Number(desiredChain),
@@ -81,7 +67,6 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
       const response = await userAlice.notification.subscribe(
         `eip155:${desiredChain}:${channel}`
       );
-
       if (response.status == 204)
         return {status: "success", message: "Subscribed"};
       else return {status: "failure", message: "Something went wrong"};
@@ -90,6 +75,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     }
   };
 
+  // Function to trigger a transaction
   const TriggerTx = async (data: any) => {
     if (chainId !== Number(data.chainId.slice(7))) {
       switchChain({
@@ -171,6 +157,8 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
       return false;
     }
   };
+
+  // Function to handle button click on a frame button
   const onButtonClick = async (button: {
     index: string;
     action?: string;
@@ -178,13 +166,17 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   }) => {
     let hash;
     let SubscribeStatus = null;
+
+    // If the button action is post_redirect or link, opens the link in a new tab
     if (button.action === "post_redirect" || button.action === "link") {
       window.open(button.target!, "_blank");
       return;
     }
+
+    // If the button action is subscribe, subscribes to the channel and then makes a POST call to the Frame server
     if (button.action?.includes("subscribe")) {
       const desiredChainId = button.action?.split(":")[1];
-      if (mainnets.some((chain) => chain === Number(desiredChainId))) {
+      if (isSupportedChain(Number(desiredChainId))) {
         const res = await subscribeToChannel(button.target!, desiredChainId);
         if (res.status === "success") {
           SubscribeStatus = "Subscribed";
@@ -199,6 +191,8 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
         return;
       }
     }
+
+    // If the button action is tx, triggers a transaction and then makes a POST call to the Frame server
     if (button.action === "tx") {
       const response = await fetch("/api/frames/tx", {
         method: "POST",
@@ -219,10 +213,12 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
       hash = txid;
       if (!txid || status === "failure") return;
     }
+
+    // If the button action is mint, mints an NFT and then makes a POST call to the Frame server
     if (button.action === "mint") {
       try {
         const res = await mintNFT(button.target!);
-        console.log("Minting NFT:", res);
+
         if (!res) return;
       } catch (error) {
         console.error("Error minting NFT:", error);
@@ -230,6 +226,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
       }
     }
 
+    // Makes a POST call to the Frame server after the action has been performed
     const response = await fetch("/api/frames", {
       method: "POST",
       headers: {
@@ -247,6 +244,7 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
             ? button.target
             : metaTags.postURL,
         status: SubscribeStatus,
+        state: metaTags.state,
       }),
     });
     const data = await response.json();
@@ -257,7 +255,6 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   };
   return (
     <div className={`w-full h-full ${!metaTags.image && "pt-2"}`}>
-      {/* {showSimulateModal && <SimulateTx data={txData} />} */}
       {metaTags.image ? (
         <div className="max-w-lg size-84 flex flex-col gap-2 justify-center border-1 rounded-t-xl bg-white">
           <Link href={URL} target="blank">

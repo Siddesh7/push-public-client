@@ -237,6 +237,11 @@ async function reverseResolveAddress(address: `0x${string}`) {
     return address;
   }
 }
+
+function isSupportedChain(chainId: number) {
+  const mainnets = [1, 137, 56, 42161, 1101];
+  return mainnets.some((chain) => chain === chainId);
+}
 export {
   getHostname,
   hasWebLink,
@@ -246,4 +251,5 @@ export {
   truncateAddress,
   resolveName,
   reverseResolveAddress,
+  isSupportedChain,
 };
