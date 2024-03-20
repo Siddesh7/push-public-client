@@ -1,8 +1,12 @@
 "use client";
 import {useState} from "react";
 import {useTheme} from "../contexts/themeContext";
-
-const ThemeControllerButton = () => {
+interface ThemeControllerButtonProps {
+  style?: string;
+}
+const ThemeControllerButton: React.FC<ThemeControllerButtonProps> = ({
+  style,
+}) => {
   const {theme, setTheme} = useTheme();
 
   return (
@@ -10,7 +14,7 @@ const ThemeControllerButton = () => {
       {/* sun icon */}
       {theme === "halloween" ? (
         <svg
-          className="swap-on fill-current w-10 h-10"
+          className={`swap-on fill-current ${style ?? "w-10 h-10"}`}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           onClick={() => {
@@ -22,7 +26,7 @@ const ThemeControllerButton = () => {
         </svg>
       ) : (
         <svg
-          className="swap-off fill-current w-10 h-10"
+          className={`swap-on fill-current ${style ?? "w-10 h-10"}`}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           onClick={() => {

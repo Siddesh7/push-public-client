@@ -9,6 +9,7 @@ import {
   truncateAddress,
 } from "../lib/utils";
 import {useCurrentChat} from "../contexts/currentChatContext";
+import {useTheme} from "../contexts/themeContext";
 interface ChatMessageProps {
   nameOrAddress: string;
   ts: number;
@@ -21,6 +22,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
 }) => {
   const {address} = useAccount();
   const {activeChat} = useCurrentChat();
+  const {theme} = useTheme();
   const {data: ensName} = useEnsName({
     address: nameOrAddress as `0x${string}`,
     chainId: 1,
@@ -64,7 +66,11 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
         <p>{checkSelf() ? "You" : ensName ?? truncateAddress(nameOrAddress)}</p>
       )}
       <div
-        className={`chat-bubble flex  bg-white/10 bg-opacity-25 ${
+        className={`chat-bubble flex ${
+          theme === "garden"
+            ? "bg-black bg-opacity-75"
+            : "bg-white/10 bg-opacity-25 "
+        }  ${
           hasWebLink(message) ? "p-0 pb-2 flex-col" : "px-4 py-2 flex-row gap-2"
         }`}
       >

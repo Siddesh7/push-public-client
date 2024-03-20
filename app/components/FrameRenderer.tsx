@@ -306,9 +306,12 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
           </div>
         </div>
       ) : (
-        <a href={URL} target="blank" className="px-4 link">
-          {URL}
-        </a>
+        <div className="max-w-[100%] truncate">
+          {" "}
+          <a href={URL} target="blank" className="px-4 link truncate">
+            {URL}
+          </a>
+        </div>
       )}
     </div>
   );

@@ -49,9 +49,7 @@ const ChatMessages = () => {
     userStream?.on(CONSTANTS.STREAM.CHAT, (data: any) => {
       if (data.event === "chat.message") {
         if (data.chatId !== activeChat.chatId) return;
-        console.log("chat.message", data);
         fetchChatMessages(true);
-        console.log("chat.message", data);
       }
     });
   }

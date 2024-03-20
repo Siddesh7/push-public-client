@@ -6,6 +6,7 @@ import Image from "next/image";
 import {UserInfo} from "../lib/types";
 import {truncateAddress} from "../lib/utils";
 import {BsThreeDotsVertical} from "react-icons/bs";
+import ThemeControllerButton from "./ThemeControllerButton";
 
 const ProfileTab = () => {
   const {userAlice} = useUserAlice();
@@ -55,6 +56,7 @@ const ProfileTab = () => {
         <p>{ensName ?? truncateAddress(userInfo.address)}</p>
         {address && (
           <div className="flex flex-row items-center gap-2">
+            <ThemeControllerButton style={"w-6 h-6"} />
             <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}
