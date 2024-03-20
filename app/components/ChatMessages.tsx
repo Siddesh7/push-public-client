@@ -56,7 +56,7 @@ const ChatMessages = () => {
 
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({behavior: "smooth"});
-  }, [chatMessages]);
+  }, []);
 
   useEffect(() => {
     if (chatMessages.length === 0) return;
