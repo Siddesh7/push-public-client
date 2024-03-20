@@ -4,6 +4,7 @@ export interface FrameDetails {
   postURL: string;
   buttons: {index: string; content: string; action?: string; target?: string}[];
   input?: {name: string; content: string};
+  state?: string;
 }
 function getHostname(url: string): string {
   try {
@@ -41,6 +42,7 @@ function getFormattedMetadata(URL: string, data: any) {
     postURL: "",
     buttons: [],
     input: {name: "", content: ""},
+    state: "",
   };
 
   const parser = new DOMParser();
@@ -59,6 +61,8 @@ function getFormattedMetadata(URL: string, data: any) {
         frameDetails.image = content;
       } else if (name === "fc:frame:post_url") {
         frameDetails.postURL = content;
+      } else if (name === "fc:frame:state") {
+        frameDetails.state = content;
       } else if (
         name.includes("fc:frame:button") &&
         !name.includes("action") &&

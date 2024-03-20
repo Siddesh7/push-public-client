@@ -28,12 +28,12 @@ const ChatWindow = () => {
     <div className="min-h-full max-h-screen w-full overflow-y-hidden px-1">
       {activeChat.chatId && (
         <div className="flex flex-col items-center min-h-full">
-          <div className="h-[10vh] w-full">
+          <div className="h-[8vh] w-full">
             <ChatInfo onShowSearch={() => {}} />
           </div>
           <ChatMessages />
 
-          <div className="h-[10vh] w-full">
+          <div className="h-[7vh] w-full">
             <ChatSendComponent />
           </div>
         </div>

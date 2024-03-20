@@ -4,19 +4,15 @@ import React, {useState, useEffect} from "react";
 import {
   useAccount,
   useChainId,
-  usePrepareTransactionRequest,
   useSendTransaction,
   useSwitchChain,
-  useWalletClient,
   useWriteContract,
 } from "wagmi";
 import {FrameDetails, getFormattedMetadata, getHostname} from "../lib/utils";
 import Link from "next/link";
 import {useUserAlice} from "../contexts/userAliceContext";
 import {BsLightning} from "react-icons/bs";
-import SimulateTx from "./SimulateTx";
-import {PushAPI} from "@pushprotocol/restapi";
-import {erc721Abi} from "viem";
+
 import {FaBell} from "react-icons/fa";
 
 function FrameRenderer({URL}: {URL: string}): React.ReactElement {
@@ -59,30 +55,42 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
   }, [URL]);
 
   const subscribeToChannel = async (channel: string, desiredChain: any) => {
-    try {
-      if (chainId !== Number(desiredChain)) {
-        switchChain({
-          chainId: Number(desiredChain),
-        });
-      }
-      if (chainId === Number(desiredChain)) {
-        const response = await userAlice.notification.subscribe(
-          `eip155:${desiredChain}:${channel}`
-        );
-        if (response.message.includes("rejected")) return false;
-        return true;
-      }
-    } catch (error) {
-      return false;
+    // try {
+    //   if (chainId !== Number(desiredChain)) {
+    //     switchChain({
+    //       chainId: Number(desiredChain),
+    //     });
+    //   }
+    //   if (chainId === Number(desiredChain)) {
+    //     const response = await userAlice.notification.subscribe(
+    //       `eip155:${desiredChain}:${channel}`
+    //     );
+    //     if (response.message.includes("rejected")) return false;
+    //     return true;
+    //   }
+    // } catch (error) {
+    //   return {status: "failure", message: "Something went wrong"};
+    // }
+    // return false;
+    if (chainId !== Number(desiredChain)) {
+      switchChain({
+        chainId: Number(desiredChain),
+      });
     }
-    return false;
+    try {
+      const response = await userAlice.notification.subscribe(
+        `eip155:${desiredChain}:${channel}`
+      );
+
+      if (response.status == 204)
+        return {status: "success", message: "Subscribed"};
+      else return {status: "failure", message: "Something went wrong"};
+    } catch (error) {
+      return {status: "failure", message: "Something went wrong"};
+    }
   };
 
   const TriggerTx = async (data: any) => {
-    // console.log("Triggering transaction:", data.chainId.slice(7));
-    // setShowSimulateModal(true);
-    // setTxData(data);
-
     if (chainId !== Number(data.chainId.slice(7))) {
       switchChain({
         chainId: Number(data.chainId.slice(7)),
@@ -98,10 +106,10 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
         data: (data.params.data as any) ?? undefined,
       });
     } catch (error) {
-      return "Something went wrong";
+      return {status: "failure", message: "Something went wrong"};
     }
 
-    return hash;
+    return {hash, status: "success", message: "Transaction sent"};
   };
   // const mintNFT = async (address: string) => {
   //   const [, desiredChainId, contractAddress] = address.split(":");
@@ -177,11 +185,12 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
     if (button.action?.includes("subscribe")) {
       const desiredChainId = button.action?.split(":")[1];
       if (mainnets.some((chain) => chain === Number(desiredChainId))) {
-        try {
-          const res = await subscribeToChannel(button.target!, desiredChainId);
-          if (!res) return;
+        const res = await subscribeToChannel(button.target!, desiredChainId);
+        if (res.status === "success") {
           SubscribeStatus = "Subscribed";
-        } catch (error) {
+        } else {
+          SubscribeStatus = res.message;
+
           return;
         }
       } else {
@@ -206,8 +215,9 @@ function FrameRenderer({URL}: {URL: string}): React.ReactElement {
         }),
       });
       const data = await response.json();
-
-      hash = await TriggerTx(data);
+      const {hash: txid, status} = await TriggerTx(data);
+      hash = txid;
+      if (!txid || status === "failure") return;
     }
     if (button.action === "mint") {
       try {

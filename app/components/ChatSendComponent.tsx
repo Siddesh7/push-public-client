@@ -12,7 +12,7 @@ const ChatSendComponent = () => {
   const {activeChat} = useCurrentChat();
   const [showEmoji, setShowEmoji] = useState(false);
   const [inputText, setInputText] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const handleEmojiClick = (e: any) => {
     setInputText((prev) => prev + e.emoji);
     setShowEmoji(!showEmoji);
@@ -33,11 +33,13 @@ const ChatSendComponent = () => {
   };
 
   const sendMessage = async () => {
+    setLoading(true);
     if (!inputText || !activeChat.chatId) return;
     await userAlice.chat.send(activeChat.chatId, {
       content: inputText,
     });
     setInputText("");
+    setLoading(false);
   };
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {};
   // useEffect(() => {
@@ -86,9 +88,13 @@ const ChatSendComponent = () => {
             value={inputText}
           />
 
-          <div className=" cursor-pointer" onClick={sendMessage}>
-            <LuSend size={"20px"} />
-          </div>
+          {loading ? (
+            <span className="loading loading-spinner text-primary"></span>
+          ) : (
+            <div className=" cursor-pointer" onClick={sendMessage}>
+              <LuSend size={"20px"} />
+            </div>
+          )}
         </label>
       )}
     </div>

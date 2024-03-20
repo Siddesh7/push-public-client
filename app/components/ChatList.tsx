@@ -57,7 +57,7 @@ const ChatList: React.FC<IChatList> = ({type}) => {
     });
   }
   return (
-    <div className="h-[84vh] min-w-[400px] overflow-y-scroll no-scrollbar border-y-2 border-[gray]">
+    <div className="h-[84vh] min-w-[400px] overflow-y-scroll no-scrollbar border-[gray]">
       {/* {isAddress(searchList?.did) ? (
         <ChatListItem
           icon={

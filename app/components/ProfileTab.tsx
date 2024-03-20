@@ -1,6 +1,6 @@
 "use client";
 import React, {useEffect, useState} from "react";
-import {useAccount, useEnsName, useWalletClient} from "wagmi";
+import {useAccount, useDisconnect, useEnsName, useWalletClient} from "wagmi";
 import {useUserAlice} from "../contexts/userAliceContext";
 import Image from "next/image";
 import {UserInfo} from "../lib/types";
@@ -11,6 +11,7 @@ const ProfileTab = () => {
   const {userAlice} = useUserAlice();
   const {address} = useAccount();
   const {data: signer} = useWalletClient();
+  const {disconnect} = useDisconnect();
   const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
   const {data: ensName} = useEnsName({
     address: userInfo.address as `0x${string}`,
@@ -52,28 +53,33 @@ const ProfileTab = () => {
       </div>
       <div className="flex flex-row w-full justify-between items-center">
         <p>{ensName ?? truncateAddress(userInfo.address)}</p>
-        <div className="flex flex-row items-center gap-2">
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn bg-transparent border-0 hover:bg-white/20"
-            >
-              <BsThreeDotsVertical />
+        {address && (
+          <div className="flex flex-row items-center gap-2">
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn bg-transparent border-0 hover:bg-white/20"
+              >
+                <BsThreeDotsVertical />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content z-[10] menu p-2 shadow bg-base-100 rounded-box w-52"
+              >
+                <li>
+                  <p
+                    onClick={() => {
+                      disconnect();
+                    }}
+                  >
+                    Logout
+                  </p>
+                </li>
+              </ul>
             </div>
-            <ul
-              tabIndex={0}
-              className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
-            >
-              <li>
-                <a>Item 1</a>
-              </li>
-              <li>
-                <a>Item 2</a>
-              </li>
-            </ul>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

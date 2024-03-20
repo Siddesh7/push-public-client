@@ -49,26 +49,27 @@ const ChatInfo: React.FC<ChatInfoProps> = ({onShowSearch}) => {
           {activeChat.ensName ?? activeChat.nameOrAddress}
         </p>
         <div className="flex flex-row items-center">
-          <div className="btn bg-transparent border-0 hover:bg-white/20">
+          {/* <div className="btn bg-transparent border-0 hover:bg-white/20">
             <IoCallSharp
               size={"20px"}
               onClick={() => {
                 InitiateCall("audio");
               }}
             />
-          </div>{" "}
+          </div>{" "} */}
           <div className="btn bg-transparent border-0 hover:bg-white/20">
             <IoIosVideocam
               size={"20px"}
               onClick={() => {
-                InitiateCall("video");
+                alert("Video is WIP");
+                // InitiateCall("video");
               }}
             />
           </div>
-          <div className="btn bg-transparent border-0 hover:bg-white/20">
+          {/* <div className="btn bg-transparent border-0 hover:bg-white/20">
             <FaSearch onClick={onShowSearch} />
-          </div>
-          <div className="dropdown dropdown-end">
+          </div> */}
+          {/* <div className="dropdown dropdown-end">
             <div
               tabIndex={0}
               role="button"
@@ -87,7 +88,7 @@ const ChatInfo: React.FC<ChatInfoProps> = ({onShowSearch}) => {
                 <a>Item 2</a>
               </li>
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
