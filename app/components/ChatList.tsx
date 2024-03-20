@@ -11,12 +11,10 @@ interface IChatList {
   type: "CHATS" | "REQUESTS";
 }
 const ChatList: React.FC<IChatList> = ({type}) => {
-  const [chatList, setChatList] = useState<IFeeds[]>([]);
+  const [chatList, setChatList] = useState<any[]>([]);
   const {userAlice, userStream} = useUserAlice();
   const {data: signer} = useWalletClient();
-  // const {activeChat} = useCurrentChat();
-
-  // const [searchList, setSearchList] = useState<any>({} as IFeeds);
+  const {activeChat} = useCurrentChat();
   const fetchChatList = async () => {
     if (!signer) return;
     const chatListResponse = await userAlice?.chat?.list(type, {limit: 20});
@@ -26,24 +24,6 @@ const ChatList: React.FC<IChatList> = ({type}) => {
   useEffect(() => {
     fetchChatList();
   }, [userAlice, signer]);
-
-  // useEffect(() => {
-  //   console.log(activeChat);
-  //   if (chatList.length === 0) return;
-  //   setSearchList(undefined);
-  //   if (isAddress(activeChat.resolvedAddress)) {
-  //     const isResolvedAddressInChatList = chatList.find(
-  //       (chat) => chat?.did?.slice(7) === activeChat.resolvedAddress
-  //     );
-  //     setSearchList(isResolvedAddressInChatList);
-  //   } else if (isAddress(activeChat.search!)) {
-  //     const isSearchInChatList = chatList.find(
-  //       (chat) => chat?.did?.slice(7) === activeChat.search!
-  //     );
-  //     setSearchList(isSearchInChatList);
-  //   }
-  //   console.log("searchList", searchList);
-  // }, [activeChat.search, activeChat.resolvedAddress, chatList]);
 
   if (userStream) {
     userStream?.on(CONSTANTS.STREAM.CHAT, (data: any) => {
@@ -56,73 +36,25 @@ const ChatList: React.FC<IChatList> = ({type}) => {
       fetchChatList();
     });
   }
+
   return (
-    <div className="h-[84vh] min-w-[400px] overflow-y-scroll no-scrollbar border-[gray]">
-      {/* {isAddress(searchList?.did) ? (
+    <div className="h-[78vh] min-w-[400px] overflow-y-scroll no-scrollbar border-[gray]">
+      {isAddress(activeChat.resolvedAddress!) ||
+      isAddress(activeChat.search!) ? (
         <ChatListItem
-          icon={
-            searchList.groupInformation
-              ? searchList.groupInformation.groupImage!
-              : searchList.profilePicture!
-          }
-          chatId={searchList.chatId!}
-          nameOrAddress={
-            searchList.groupInformation
-              ? (searchList.groupInformation.groupName as any)
-              : (searchList.did.slice(7) as `0x${string}`)
-          }
-          lastSentOrReceivedTS={searchList.msg.timestamp!}
-          lastMessage={searchList.msg.messageContent}
-          chatOrGroup={searchList.groupInformation ? "GROUP" : "CHAT"}
-          focus={false}
-        />
-      ) : (
-        <div>
-          {chatList &&
-            chatList.length > 0 &&
-            chatList.map((chat, index) => {
-              if (!chat.chatId && !chat.msg && !chat.profilePicture) null;
-
-              if (chat.groupInformation) {
-              }
-              return (
-                <ChatListItem
-                  key={index}
-                  icon={
-                    chat.groupInformation
-                      ? chat.groupInformation.groupImage!
-                      : chat.profilePicture!
-                  }
-                  chatId={chat.chatId!}
-                  nameOrAddress={
-                    chat.groupInformation
-                      ? (chat.groupInformation.groupName as any)
-                      : (chat.did.slice(7) as `0x${string}`)
-                  }
-                  lastSentOrReceivedTS={chat.msg.timestamp!}
-                  lastMessage={chat.msg.messageContent}
-                  chatOrGroup={chat.groupInformation ? "GROUP" : "CHAT"}
-                  focus={false}
-                />
-              );
-            })}
-        </div>
-      )}
-
-      {searchList === undefined && (
-        <ChatListItem
-          chatId={"undefined"}
-          nameOrAddress={
-            isAddress(activeChat.search!)
-              ? activeChat.search!
-              : activeChat.resolvedAddress!
-          }
+          key={"search"}
+          chatId={activeChat.resolvedAddress!}
+          nameOrAddress={activeChat.resolvedAddress}
           chatOrGroup={"CHAT"}
           focus={false}
+          chatList={"CHATS"}
         />
-      )} */}
-
-      {chatList &&
+      ) : (
+        <div></div>
+      )}
+      {!isAddress(activeChat.resolvedAddress!) &&
+        !isAddress(activeChat.search!) &&
+        chatList &&
         chatList.length > 0 &&
         chatList.map((chat, index) => {
           if (!chat.chatId && !chat.msg && !chat.profilePicture) null;

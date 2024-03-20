@@ -15,7 +15,7 @@ import {ActiveChat, CurrentChatContext} from "./contexts/currentChatContext";
 import ChatWindow from "./components/ChatWindow";
 import ChatRequests from "./components/ChatRequests";
 import ProfileTab from "./components/ProfileTab";
-// import NewChatOrSearchChat from "./components/NewChatOrSearchChat";
+import NewChatOrSearchChat from "./components/NewChatOrSearchChat";
 export default function Home() {
   const [userAlice, setUserAlice] = useState<PushAPI>({} as PushAPI);
   const [userStream, setUserStream] = useState<any>();
@@ -93,7 +93,7 @@ export default function Home() {
               <div className="max-w-[400px]">
                 <ProfileTab />
                 <ChatRequests />
-                {/* <NewChatOrSearchChat /> */}
+                <NewChatOrSearchChat />
                 <ChatList type="CHATS" />
               </div>
               <div className="w-full">

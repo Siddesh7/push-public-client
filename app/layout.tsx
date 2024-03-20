@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={ptSans.className}>
+      <body className={`${ptSans.className} bg-base-100`}>
         <Providers>{children}</Providers>
       </body>
     </html>
