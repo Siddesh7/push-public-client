@@ -27,8 +27,7 @@ const ChatSendComponent = () => {
       activeChat.chatId,
       activeChat.nameOrAddress!
     );
-    console.log(status);
-    console.log(status.list === "CHATS");
+
     return status.list === "CHATS";
   };
 

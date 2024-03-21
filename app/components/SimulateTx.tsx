@@ -34,13 +34,10 @@ const SimulateTx: React.FC<SimulateTxProps> = ({data}) => {
 
   const {sendTransactionAsync} = useSendTransaction();
 
-  console.log(data.chainId.slice(7));
-
   if (isLoading) return <div>Simulating transaction...</div>;
 
   if (error) return <div>Simulation error: {error.message}</div>;
 
-  console.log("Simulation results:", simulation); // Log simulation data for inspection
   sendTransactionAsync({
     account: address,
     chainId: Number(data.chainId.slice(7)),

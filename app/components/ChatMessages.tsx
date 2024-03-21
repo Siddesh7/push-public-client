@@ -28,15 +28,13 @@ const ChatMessages = () => {
   const fetchOldMessages = async (chatMessages: any[]) => {
     const scrollTop = startMessageRef.current?.scrollTop || 0;
     if (scrollTop === 0) {
-      console.log("Reached the top of the scrollable area");
-
       const oldMessages = await userAlice.chat.history(activeChat.chatId, {
         limit: 15,
         reference: chatMessages[0].link,
       });
 
       const allMessages = oldMessages.reverse().concat(chatMessages);
-      console.log("allMessages", allMessages);
+
       // setChatMessages(allMessages);
       // setChatMessages((prev) => [...prev, ...oldMessages.reverse()]);
     }

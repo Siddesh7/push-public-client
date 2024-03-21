@@ -32,7 +32,7 @@ const ChatList: React.FC<IChatList> = ({type}) => {
       }
     });
     userStream?.on(CONSTANTS.STREAM.CHAT_OPS, (data: any) => {
-      console.log("data", data);
+    
       fetchChatList();
     });
   }
